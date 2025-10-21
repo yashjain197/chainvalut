@@ -11,7 +11,9 @@
   },
   "dependencies": {
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "ethers": "^6.13.4",
+    "@lit-protocol/lit-node-client": "^7.3.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
