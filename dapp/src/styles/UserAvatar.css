@@ -1,0 +1,70 @@
+.user-avatar {
+  position: relative;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-avatar.with-border {
+  padding: 2px;
+  background: linear-gradient(135deg, #1A73E8, #00E0FF, #4FC3F7);
+}
+
+.user-avatar.with-border::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  background: #0B0E11;
+  z-index: 0;
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  position: relative;
+  z-index: 1;
+}
+
+.avatar-identicon {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.identicon-text {
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.65em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Small avatar variant */
+.user-avatar.small {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+.user-avatar.small .identicon-text {
+  font-size: 0.55em;
+}
+
+/* Large avatar variant */
+.user-avatar.large {
+  width: 64px !important;
+  height: 64px !important;
+}
+
+.user-avatar.large .identicon-text {
+  font-size: 0.75em;
+}

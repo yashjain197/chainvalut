@@ -1,7 +1,8 @@
 // ChainVault Configuration
 // Note: Contract address is now determined by network in useWeb3 hook
 // Default contract address (Mainnet/Sepolia)
-export const DEFAULT_CONTRACT_ADDRESS = "0x4Bb25877b98782B0c15CE79119c37a7ea84A986f";
+export const CONTRACT_ADDRESS = '0x4Bb25877b98782B0c15CE79119c37a7ea84A986f';
+export const SEPOLIA_CHAIN_ID = 11155111;
 
 export const CONTRACT_ABI = [
   {
