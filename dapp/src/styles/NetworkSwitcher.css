@@ -1,0 +1,137 @@
+.network-switcher {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.network-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.network-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(26, 115, 232, 0.1);
+  border: 1px solid rgba(26, 115, 232, 0.3);
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #E8EAED;
+}
+
+.network-badge.wrong {
+  background: rgba(244, 67, 54, 0.1);
+  border-color: rgba(244, 67, 54, 0.3);
+  color: #F44336;
+}
+
+.network-badge.correct {
+  background: rgba(0, 200, 83, 0.1);
+  border-color: rgba(0, 200, 83, 0.3);
+  color: #00C853;
+}
+
+.network-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.network-dot.green {
+  background: #00C853;
+}
+
+.network-dot.red {
+  background: #F44336;
+}
+
+.network-dot.gray {
+  background: #9AA0A6;
+  animation: none;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.network-warning {
+  background: rgba(255, 152, 0, 0.1);
+  border: 1px solid rgba(255, 152, 0, 0.3);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  animation: shake 0.5s ease;
+}
+
+.network-warning p {
+  margin: 0;
+  color: #FF9800;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.network-buttons {
+  display: flex;
+  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.25rem;
+  border-radius: 12px;
+}
+
+.network-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  color: #9AA0A6;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.network-button:hover:not(:disabled) {
+  color: #E8EAED;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.network-button.active {
+  background: linear-gradient(135deg, #1A73E8, #4FC3F7);
+  color: #E8EAED;
+  box-shadow: 0 2px 8px rgba(26, 115, 232, 0.3);
+}
+
+.network-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .network-switcher {
+    width: 100%;
+  }
+
+  .network-buttons {
+    width: 100%;
+  }
+
+  .network-button {
+    flex: 1;
+    justify-content: center;
+  }
+}
