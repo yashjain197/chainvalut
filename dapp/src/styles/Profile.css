@@ -1,15 +1,17 @@
 .profile-container {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
+  padding: 1rem;
 }
 
 .profile-header-image {
   width: 100%;
-  height: 240px;
+  height: 200px;
   overflow: hidden;
-  border-radius: 20px 20px 0 0;
-  margin-bottom: -60px;
+  border-radius: 16px 16px 0 0;
+  margin-bottom: -50px;
   position: relative;
+  background: linear-gradient(135deg, #1A73E8 0%, #4FC3F7 50%, #00E0FF 100%);
 }
 
 .profile-header-image img {
@@ -21,8 +23,9 @@
 .profile-content {
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 2rem;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .profile-main {
@@ -43,25 +46,26 @@
 .profile-avatar-section {
   display: flex;
   align-items: flex-start;
-  gap: 2rem;
-  margin-bottom: 2rem;
-  padding-bottom: 2rem;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .profile-identity {
   flex: 1;
-  padding-top: 1rem;
+  padding-top: 0.75rem;
 }
 
 .profile-name {
-  font-size: 2.25rem;
+  font-size: 2rem;
   font-weight: 700;
   background: linear-gradient(135deg, #1A73E8, #00E0FF);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
 }
 
 .profile-address {
