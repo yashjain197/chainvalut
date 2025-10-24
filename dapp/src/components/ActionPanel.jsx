@@ -12,6 +12,7 @@ const ActionPanel = ({ contract, onTransactionComplete }) => {
   const [loading, setLoading] = useState(false);
   const [txHash, setTxHash] = useState('');
   const [error, setError] = useState('');
+  const [txStatus, setTxStatus] = useState(''); // 'pending', 'confirming', 'success'
 
   const generateRef = () => {
     return ethers.hexlify(ethers.randomBytes(32));
@@ -27,20 +28,33 @@ const ActionPanel = ({ contract, onTransactionComplete }) => {
       setLoading(true);
       setError('');
       setTxHash('');
+      setTxStatus('pending');
 
       const value = ethers.parseEther(depositAmount);
       const ref = generateRef();
       
+      console.log('Sending deposit transaction...');
       const tx = await contract.deposit(ref, { value });
       setTxHash(tx.hash);
+      setTxStatus('confirming');
+      console.log('Transaction sent, waiting for confirmation:', tx.hash);
       
-      await tx.wait();
+      await tx.wait(1); // Wait for 1 confirmation
+      console.log('Transaction confirmed!');
+      setTxStatus('success');
       
       setDepositAmount('');
       onTransactionComplete();
+      
+      // Clear success message after 5 seconds
+      setTimeout(() => {
+        setTxHash('');
+        setTxStatus('');
+      }, 5000);
     } catch (err) {
       console.error('Deposit error:', err);
       setError(err.reason || err.message || 'Transaction failed');
+      setTxStatus('');
     } finally {
       setLoading(false);
     }
@@ -61,21 +75,30 @@ const ActionPanel = ({ contract, onTransactionComplete }) => {
       setLoading(true);
       setError('');
       setTxHash('');
+      setTxStatus('pending');
 
       const amount = ethers.parseEther(withdrawAmount);
       const ref = generateRef();
       
       const tx = await contract.withdraw(amount, withdrawAddress, ref);
       setTxHash(tx.hash);
+      setTxStatus('confirming');
       
-      await tx.wait();
+      await tx.wait(1);
+      setTxStatus('success');
       
       setWithdrawAmount('');
       setWithdrawAddress('');
       onTransactionComplete();
+      
+      setTimeout(() => {
+        setTxHash('');
+        setTxStatus('');
+      }, 5000);
     } catch (err) {
       console.error('Withdraw error:', err);
       setError(err.reason || err.message || 'Transaction failed');
+      setTxStatus('');
     } finally {
       setLoading(false);
     }
@@ -86,17 +109,26 @@ const ActionPanel = ({ contract, onTransactionComplete }) => {
       setLoading(true);
       setError('');
       setTxHash('');
+      setTxStatus('pending');
 
       const ref = generateRef();
       const tx = await contract.withdrawAll(ref);
       setTxHash(tx.hash);
+      setTxStatus('confirming');
       
-      await tx.wait();
+      await tx.wait(1);
+      setTxStatus('success');
       
       onTransactionComplete();
+      
+      setTimeout(() => {
+        setTxHash('');
+        setTxStatus('');
+      }, 5000);
     } catch (err) {
       console.error('Withdraw all error:', err);
       setError(err.reason || err.message || 'Transaction failed');
+      setTxStatus('');
     } finally {
       setLoading(false);
     }
@@ -117,21 +149,30 @@ const ActionPanel = ({ contract, onTransactionComplete }) => {
       setLoading(true);
       setError('');
       setTxHash('');
+      setTxStatus('pending');
 
       const amount = ethers.parseEther(payAmount);
       const ref = generateRef();
       
       const tx = await contract.pay(payAddress, amount, ref);
       setTxHash(tx.hash);
+      setTxStatus('confirming');
       
-      await tx.wait();
+      await tx.wait(1);
+      setTxStatus('success');
       
       setPayAmount('');
       setPayAddress('');
       onTransactionComplete();
+      
+      setTimeout(() => {
+        setTxHash('');
+        setTxStatus('');
+      }, 5000);
     } catch (err) {
       console.error('Pay error:', err);
       setError(err.reason || err.message || 'Transaction failed');
+      setTxStatus('');
     } finally {
       setLoading(false);
     }
@@ -179,7 +220,7 @@ const ActionPanel = ({ contract, onTransactionComplete }) => {
               onClick={handleDeposit}
               disabled={loading}
             >
-              {loading ? 'Processing...' : 'Deposit ETH'}
+              {loading ? (txStatus === 'confirming' ? 'Confirming on blockchain...' : 'Waiting for wallet...') : 'Deposit ETH'}
             </button>
           </div>
         )}
@@ -268,7 +309,36 @@ const ActionPanel = ({ contract, onTransactionComplete }) => {
           </div>
         )}
 
-        {txHash && (
+        {txStatus === 'pending' && (
+          <div className="message info">
+            <div className="spinner"></div>
+            Waiting for wallet confirmation...
+          </div>
+        )}
+
+        {txStatus === 'confirming' && txHash && (
+          <div className="message info">
+            <div className="spinner"></div>
+            Transaction sent! Confirming on blockchain...
+            <a href={`https://etherscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer" className="tx-link">
+              View on Etherscan →
+            </a>
+          </div>
+        )}
+
+        {txStatus === 'success' && txHash && (
+          <div className="message success">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M8 0C3.6 0 0 3.6 0 8s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8zm-1 12L3 8l1.4-1.4L7 9.2l4.6-4.6L13 6l-6 6z" fill="currentColor"/>
+            </svg>
+            Transaction confirmed! 
+            <a href={`https://etherscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer" className="tx-link">
+              View on Etherscan →
+            </a>
+          </div>
+        )}
+
+        {!txStatus && txHash && (
           <div className="message success">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M8 0C3.6 0 0 3.6 0 8s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8zm-1 12L3 8l1.4-1.4L7 9.2l4.6-4.6L13 6l-6 6z" fill="currentColor"/>

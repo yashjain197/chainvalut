@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
 import { useENS } from '../hooks/useENS';
@@ -8,7 +8,6 @@ import '../styles/EnhancedWalletConnect.css';
 const EnhancedWalletConnect = () => {
   const { address } = useAccount();
   const ensData = useENS(address);
-  const [showProfile, setShowProfile] = useState(false);
 
   return (
     <div className="enhanced-wallet-connect">
@@ -84,8 +83,8 @@ const EnhancedWalletConnect = () => {
                       <UserAvatar 
                         address={address}
                         ensAvatar={ensData.avatar}
-                        ensName={ensData.name}
-                        size={40}
+                        ensName={ensData.name || account.displayName}
+                        size={36}
                       />
 
                       <div className="profile-meta">

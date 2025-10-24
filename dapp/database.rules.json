@@ -1,0 +1,51 @@
+{
+  "rules": {
+    "lendingOffers": {
+      ".read": true,
+      "$offerId": {
+        ".write": true,
+        ".validate": "newData.hasChildren(['lenderAddress', 'amount', 'interestRate', 'duration', 'status', 'createdAt'])"
+      }
+    },
+    "borrows": {
+      "$userAddress": {
+        ".read": true,
+        ".write": true,
+        "$borrowId": {
+          ".validate": "newData.hasChildren(['lenderAddress', 'amount', 'totalRepayment', 'borrowedAt', 'dueDate', 'status'])"
+        }
+      }
+    },
+    "conversations": {
+      ".read": true,
+      "$conversationId": {
+        ".write": true,
+        ".validate": "newData.hasChildren(['participants', 'createdAt'])"
+      }
+    },
+    "messages": {
+      "$conversationId": {
+        ".read": true,
+        "$messageId": {
+          ".write": true
+        }
+      }
+    },
+    "loanRequests": {
+      "$conversationId": {
+        ".read": true,
+        "$requestId": {
+          ".write": true,
+          ".validate": "newData.hasChildren(['from', 'to', 'amount', 'status', 'createdAt'])"
+        }
+      }
+    },
+    "profiles": {
+      "$userAddress": {
+        ".read": true,
+        ".write": true,
+        ".validate": "newData.hasChildren(['walletAddress', 'updatedAt'])"
+      }
+    }
+  }
+}

@@ -1,0 +1,142 @@
+.loan-notifications {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 400px;
+}
+
+.loan-notification {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  animation: slideIn 0.3s ease-out;
+  border-left: 4px solid;
+}
+
+.loan-notification.overdue {
+  border-left-color: #f44336;
+  background: linear-gradient(135deg, #ffffff 0%, #ffebee 100%);
+}
+
+.loan-notification.due-soon {
+  border-left-color: #ff9800;
+  background: linear-gradient(135deg, #ffffff 0%, #fff3e0 100%);
+}
+
+.loan-notification.payment-received {
+  border-left-color: #4caf50;
+  background: linear-gradient(135deg, #ffffff 0%, #e8f5e9 100%);
+}
+
+.notification-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.notification-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+  color: #1a1a1a;
+}
+
+.notification-message {
+  font-size: 0.875rem;
+  color: #666;
+  line-height: 1.4;
+}
+
+.notification-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.notification-btn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.repay-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.5rem 1rem;
+}
+
+.repay-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.dismiss-btn {
+  color: #999;
+  font-size: 1.25rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.dismiss-btn:hover {
+  color: #666;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .loan-notifications {
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+
+  .loan-notification {
+    padding: 0.875rem;
+  }
+
+  .notification-icon {
+    font-size: 1.25rem;
+  }
+
+  .notification-title {
+    font-size: 0.875rem;
+  }
+
+  .notification-message {
+    font-size: 0.8125rem;
+  }
+
+  .repay-btn {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+}

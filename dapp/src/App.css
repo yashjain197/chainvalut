@@ -24,6 +24,54 @@
   position: sticky;
   top: 0;
   z-index: 100;
+  gap: 2rem;
+}
+
+.main-nav {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex: 1;
+  justify-content: center;
+  max-width: 600px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
+  text-decoration: none;
+  color: #9AA0A6;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  background: transparent;
+  border: 1px solid transparent;
+}
+
+.nav-link svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  fill: none;
+}
+
+.nav-link:hover {
+  color: #E8EAED;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-link.active {
+  color: #00E0FF;
+  background: rgba(0, 224, 255, 0.1);
+  border-color: rgba(0, 224, 255, 0.3);
+}
+
+.nav-link span {
+  white-space: nowrap;
 }
 
 .logo {
@@ -65,10 +113,11 @@
 
 .app-main {
   flex: 1;
-  padding: 3rem;
+  padding: 2rem 3rem;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+  overflow-y: auto;
 }
 
 .welcome-section {
@@ -76,6 +125,7 @@
   justify-content: center;
   align-items: center;
   width: 100%;
+  min-height: calc(100vh - 180px);
 }
 
 .welcome-content {
@@ -83,6 +133,26 @@
   max-width: 900px;
   width: 100%;
   padding: 2rem;
+}
+
+.hero-section {
+  margin-bottom: 4rem;
+}
+
+.hero-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 2rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .welcome-content h2 {
@@ -93,6 +163,28 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.hero-description {
+  font-size: 1.25rem;
+  color: #9AA0A6;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.connect-prompt {
+  margin-top: 2rem;
+}
+
+.connect-hint {
+  font-size: 1rem;
+  color: #4FC3F7;
+  font-weight: 500;
+  padding: 1rem 2rem;
+  background: rgba(79, 195, 247, 0.1);
+  border: 1px solid rgba(79, 195, 247, 0.3);
+  border-radius: 12px;
+  display: inline-block;
 }
 
 .welcome-content > p {
@@ -108,7 +200,7 @@
   margin-bottom: 3rem;
 }
 
-.feature {
+.feature-card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -120,27 +212,36 @@
   transition: all 0.3s ease;
 }
 
-.feature:hover {
+.feature-card:hover {
   background: rgba(26, 115, 232, 0.05);
   border-color: rgba(26, 115, 232, 0.3);
   transform: translateY(-4px);
 }
 
-.feature svg {
-  color: #1A73E8;
+.feature-icon {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(26, 115, 232, 0.1);
+  border-radius: 16px;
+  padding: 0.75rem;
 }
 
-.feature h3 {
-  font-size: 1.125rem;
+.feature-card h3 {
+  font-size: 1.25rem;
   font-weight: 600;
   color: #E8EAED;
-  margin-bottom: 0.5rem;
+  margin: 0;
 }
 
-.feature p {
-  font-size: 0.875rem;
+.feature-card p {
+  font-size: 0.95rem;
   color: #9AA0A6;
   text-align: center;
+  margin: 0;
+  line-height: 1.5;
 }
 
 .cta-button {
@@ -162,7 +263,8 @@
 }
 
 .dashboard {
-  max-width: 1400px;
+  max-width: 1600px;
+  width: 100%;
   margin: 0 auto;
 }
 
@@ -170,35 +272,37 @@
   display: flex;
   align-items: center;
   gap: 1.5rem;
-  padding: 2rem;
-  margin-bottom: 2rem;
+  padding: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
   background: linear-gradient(135deg, rgba(26, 115, 232, 0.1), rgba(0, 224, 255, 0.05));
   border: 1px solid rgba(26, 115, 232, 0.2);
-  border-radius: 20px;
+  border-radius: 16px;
   animation: fadeInUp 0.5s ease;
 }
 
 .welcome-info h2 {
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 600;
   background: linear-gradient(135deg, #1A73E8, #00E0FF);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .user-description {
   color: #9AA0A6;
-  font-size: 1rem;
+  font-size: 0.9rem;
   margin: 0;
 }
 
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-  gap: 2rem;
+  gap: 1.5rem;
   animation: fadeInUp 0.5s ease;
+  height: calc(100vh - 280px);
+  min-height: 600px;
 }
 
 @keyframes fadeInUp {
@@ -212,22 +316,65 @@
   }
 }
 
+.grid-item {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
 .balance-section {
   grid-column: 1 / 13;
+  max-height: 180px;
 }
 
 .actions-section {
-  grid-column: 1 / 7;
+  grid-column: 1 / 5;
+  grid-row: 2 / 4;
+}
+
+.loan-stats-section {
+  grid-column: 5 / 9;
+  grid-row: 2 / 4;
+  overflow-y: auto;
 }
 
 .history-section {
-  grid-column: 7 / 13;
+  grid-column: 9 / 13;
+  grid-row: 2 / 4;
+  overflow-y: auto;
+}
+
+@media (max-width: 1400px) {
+  .actions-section {
+    grid-column: 1 / 7;
+  }
+
+  .loan-stats-section {
+    grid-column: 7 / 13;
+  }
+
+  .history-section {
+    grid-column: 1 / 13;
+    grid-row: 3 / 4;
+  }
 }
 
 @media (max-width: 1024px) {
+  .dashboard-grid {
+    height: auto;
+    min-height: 0;
+  }
+
   .actions-section,
+  .loan-stats-section,
   .history-section {
     grid-column: 1 / 13;
+    grid-row: auto;
+    max-height: none;
   }
 }
 
@@ -239,12 +386,65 @@
     padding: 1rem;
   }
 
+  .main-nav {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding: 0 0.5rem;
+  }
+
+  .nav-link {
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .nav-link span {
+    display: none;
+  }
+
+  .nav-link svg {
+    width: 22px;
+    height: 22px;
+  }
+
   .logo {
     justify-content: center;
   }
 
   .app-main {
-    padding: 1.5rem;
+    padding: 1rem;
+  }
+
+  .dashboard-welcome {
+    padding: 1rem;
+  }
+
+  .welcome-info h2 {
+    font-size: 1.25rem;
+  }
+
+  .dashboard-grid {
+    gap: 1rem;
+    height: auto;
+    min-height: 0;
+  }
+
+  .balance-section {
+    max-height: none;
+  }
+
+  .balance-main {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .balance-details {
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-left: 0;
+    padding-top: 1rem;
+    gap: 2rem;
   }
 
   .welcome-content {
@@ -273,18 +473,9 @@
     padding: 1.5rem;
   }
 
-  .dashboard-grid {
-    gap: 1.5rem;
-  }
-
   .dashboard-welcome {
     flex-direction: column;
     text-align: center;
-    padding: 1.5rem;
-  }
-
-  .welcome-info h2 {
-    font-size: 1.5rem;
   }
 
   .app-footer {
