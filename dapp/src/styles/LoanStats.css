@@ -1,0 +1,314 @@
+.loan-stats {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 1rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.loan-stats h2 {
+  font-size: 1rem;
+  color: #E8EAED;
+  margin: 0 0 0.875rem 0;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.loan-stats h3 {
+  font-size: 0.875rem;
+  color: #9AA0A6;
+  margin: 1rem 0 0.75rem 0;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.stats-summary {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.625rem;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+}
+
+.summary-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.75rem;
+  display: flex;
+  gap: 0.625rem;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.summary-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-2px);
+}
+
+.summary-card.borrow {
+  border-left: 3px solid #FF9800;
+}
+
+.summary-card.owed {
+  border-left: 3px solid #F44336;
+}
+
+.summary-card.lend {
+  border-left: 3px solid #4CAF50;
+}
+
+.summary-card.returns {
+  border-left: 3px solid #00E0FF;
+}
+
+.summary-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.summary-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.summary-label {
+  font-size: 0.625rem;
+  color: #9AA0A6;
+  margin-bottom: 0.125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.summary-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #E8EAED;
+  margin-bottom: 0.125rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.summary-value.earning {
+  color: #4CAF50;
+}
+
+.summary-meta {
+  font-size: 0.625rem;
+  color: #9AA0A6;
+}
+
+.loans-section {
+  flex: 1;
+  overflow-y: auto;
+  margin-top: 0.75rem;
+}
+
+.loans-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.loan-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 0.875rem;
+  transition: all 0.3s ease;
+}
+
+.loan-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.loan-item.overdue {
+  border-left: 3px solid #F44336;
+  background: rgba(244, 67, 54, 0.05);
+}
+
+.loan-item.lend {
+  border-left: 3px solid #4CAF50;
+}
+
+.loan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.625rem;
+  padding-bottom: 0.625rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.loan-party {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.party-label {
+  font-size: 0.625rem;
+  color: #9AA0A6;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.party-name {
+  font-size: 0.8125rem;
+  color: #E8EAED;
+  font-weight: 600;
+}
+
+.overdue-badge,
+.active-badge {
+  padding: 0.25rem 0.625rem;
+  border-radius: 6px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.overdue-badge {
+  background: rgba(244, 67, 54, 0.2);
+  color: #F44336;
+}
+
+.active-badge {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4CAF50;
+}
+
+.loan-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin-bottom: 0.75rem;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8125rem;
+}
+
+.detail-row span:first-child {
+  color: #9AA0A6;
+}
+
+.detail-value {
+  color: #E8EAED;
+  font-weight: 600;
+}
+
+.detail-value.highlight {
+  color: #4FC3F7;
+  font-size: 1.05rem;
+}
+
+.detail-value.earning {
+  color: #4CAF50;
+}
+
+.overdue-text {
+  color: #F44336;
+  font-weight: 600;
+}
+
+.quick-pay-btn {
+  width: 100%;
+  padding: 0.625rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.quick-pay-btn.vault {
+  background: linear-gradient(135deg, #4CAF50, #00C853);
+  color: #fff;
+}
+
+.quick-pay-btn.wallet {
+  background: linear-gradient(135deg, #FF9800, #FF5722);
+  color: #fff;
+}
+
+.quick-pay-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.quick-pay-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinner-small {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.no-loans {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #9AA0A6;
+}
+
+.no-loans svg {
+  margin-bottom: 1rem;
+  color: #9AA0A6;
+  opacity: 0.5;
+}
+
+.no-loans p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .loan-stats {
+    padding: 1.5rem;
+  }
+
+  .stats-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .loan-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .overdue-badge,
+  .active-badge {
+    align-self: flex-start;
+  }
+
+  .summary-value {
+    font-size: 1.125rem;
+  }
+}
