@@ -1,28 +1,33 @@
 .action-panel {
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
+  border-radius: 16px;
   padding: 1.5rem;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .tabs {
   display: flex;
   gap: 0.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
   background: rgba(0, 0, 0, 0.3);
   padding: 0.25rem;
   border-radius: 12px;
+  flex-shrink: 0;
 }
 
 .tab {
   flex: 1;
-  padding: 0.75rem 1rem;
+  padding: 0.625rem 1rem;
   background: transparent;
   color: #9AA0A6;
   border: none;
   border-radius: 10px;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -156,11 +161,64 @@
   font-size: 0.875rem;
   margin-top: 1rem;
   animation: slideIn 0.3s ease;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 @keyframes slideIn {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+.message svg {
+  flex-shrink: 0;
+}
+
+.message.info {
+  background: rgba(79, 195, 247, 0.1);
+  border: 1px solid rgba(79, 195, 247, 0.3);
+  color: #4FC3F7;
+}
+
+.message.success {
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  color: #4CAF50;
+}
+
+.message.error {
+  background: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  color: #F44336;
+}
+
+.tx-link {
+  color: inherit;
+  text-decoration: underline;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  opacity: 0.9;
+  transition: opacity 0.2s ease;
+}
+
+.tx-link:hover {
+  opacity: 1;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(79, 195, 247, 0.3);
+  border-top-color: #4FC3F7;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .message.success {
