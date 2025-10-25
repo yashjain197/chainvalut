@@ -100,6 +100,28 @@
   cursor: not-allowed;
 }
 
+.resolved-ens,
+.resolving-ens {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.resolved-ens {
+  color: #34C759;
+}
+
+.resolving-ens {
+  color: #1A73E8;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
 .action-button {
   padding: 1rem;
   border: none;

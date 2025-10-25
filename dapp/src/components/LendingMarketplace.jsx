@@ -145,8 +145,20 @@ const LendingMarketplace = () => {
       return;
     }
 
-    // Open chat with lender instead of direct borrow
-    navigate('/chat', { state: { recipientAddress: offer.lenderAddress } });
+    // Open chat with lender and pass lending offer details
+    navigate('/chat', { 
+      state: { 
+        recipientAddress: offer.lenderAddress,
+        lendingOffer: {
+          id: offerId,
+          amount: offer.amount,
+          interestRate: offer.interestRate,
+          duration: offer.duration,
+          description: offer.description,
+          lenderAddress: offer.lenderAddress
+        }
+      } 
+    });
   };
 
   const toggleExpand = (offerId) => {
