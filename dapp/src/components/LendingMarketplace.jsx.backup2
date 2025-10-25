@@ -1,0 +1,311 @@
+import React, { useState, useEffect } from 'react';
+import { useAccount } from 'wagmi';
+import { useNavigate } from 'react-router-dom';
+import { database } from '../config/firebase';
+import { ref, push, onValue, update, remove } from 'firebase/database';
+import UserAvatar from './UserAvatar';
+import { useENS } from '../hooks/useENS';
+import { useEFPProfile } from '../hooks/useEFPProfile';
+import '../styles/LendingMarketplace.css';
+
+const LendingMarketplace = () => {
+  const { address, isConnected } = useAccount();
+  const navigate = useNavigate();
+  const [offers, setOffers] = useState([]);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showMyOffersModal, setShowMyOffersModal] = useState(false);
+  const [editingOffer, setEditingOffer] = useState(null);
+  const [expandedOfferId, setExpandedOfferId] = useState(null);
+  const [formData, setFormData] = useState({
+    amount: '',
+    interestRate: '',
+    duration: '30',
+    description: '',
+  });
+
+  // Fetch lending offers from Firebase
+  useEffect(() => {
+    const offersRef = ref(database, 'lendingOffers');
+    
+    const unsubscribe = onValue(offersRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const offersArray = Object.keys(data).map(key => ({
+          id: key,
+          ...data[key]
+        }))
+        // Filter out borrowed offers and sort by creation date
+        .filter(offer => offer.status !== 'borrowed' && offer.status !== 'pending-payment' && offer.status !== 'repaid')
+        .sort((a, b) => b.createdAt - a.createdAt);
+        setOffers(offersArray);
+      } else {
+        setOffers([]);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const myOffers = offers.filter(offer => 
+    offer.lenderAddress.toLowerCase() === address?.toLowerCase()
+  );
+
+  const handleCreateOffer = async (e) => {
+    e.preventDefault();
+    
+    if (!isConnected || !address) {
+      alert('Please connect your wallet first');
+      return;
+    }
+
+    try {
+      const offersRef = ref(database, 'lendingOffers');
+      const newOffer = {
+        lenderAddress: address.toLowerCase(),
+        amount: formData.amount,
+        interestRate: parseFloat(formData.interestRate),
+        duration: parseInt(formData.duration),
+        description: formData.description,
+        status: 'active',
+        createdAt: Date.now(),
+        borrower: null,
+      };
+
+      await push(offersRef, newOffer);
+
+      // Reset form
+      setFormData({
+        amount: '',
+        interestRate: '',
+        duration: '30',
+        description: '',
+      });
+      setShowCreateModal(false);
+      alert('Lending offer created successfully!');
+    } catch (error) {
+      console.error('Error creating offer:', error);
+      alert('Failed to create offer. Please try again.');
+    }
+  };
+
+  const handleBorrow = async (offerId, offer) => {
+    if (!isConnected || !address) {
+      alert('Please connect your wallet first');
+      return;
+    }
+
+    if (offer.lenderAddress.toLowerCase() === address.toLowerCase()) {
+      alert('You cannot borrow from your own offer');
+      return;
+    }
+
+    if (offer.status !== 'active') {
+      alert('This offer is no longer available');
+      return;
+    }
+
+    // Open chat with lender instead of direct borrow
+    navigate('/chat', { state: { recipientAddress: offer.lenderAddress } });
+  };
+
+  return (
+    <div className="lending-marketplace">
+      <div className="marketplace-header">
+        <div>
+          <h1>Available Lenders</h1>
+          <p className="marketplace-subtitle">
+            Browse active lending offers and borrow ETH with custom terms.
+          </p>
+        </div>
+        {isConnected && (
+          <button 
+            className="create-offer-btn"
+            onClick={() => setShowCreateModal(true)}
+          >
+            + Create Lending Offer
+          </button>
+        )}
+      </div>
+
+      {/* Create Offer Modal */}
+      {showCreateModal && (
+        <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Create Lending Offer</h3>
+              <button className="modal-close" onClick={() => setShowCreateModal(false)}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+            
+            <form onSubmit={handleCreateOffer} className="offer-form">
+              <div className="form-group">
+                <label>Amount (ETH)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  required
+                  value={formData.amount}
+                  onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                  placeholder="e.g., 1.5"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Interest Rate (%)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                  required
+                  value={formData.interestRate}
+                  onChange={(e) => setFormData({ ...formData, interestRate: e.target.value })}
+                  placeholder="e.g., 5.5"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Duration (days)</label>
+                <select
+                  value={formData.duration}
+                  onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                  required
+                >
+                  <option value="7">7 days</option>
+                  <option value="14">14 days</option>
+                  <option value="30">30 days</option>
+                  <option value="60">60 days</option>
+                  <option value="90">90 days</option>
+                  <option value="180">180 days</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Description (Optional)</label>
+                <textarea
+                  rows="3"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Add any terms, requirements, or notes..."
+                />
+              </div>
+
+              <div className="modal-actions">
+                <button type="button" className="cancel-btn" onClick={() => setShowCreateModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="submit-btn">
+                  Create Offer
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      <div className="offers-grid">
+        {offers.length === 0 ? (
+          <div className="no-offers">
+            <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+              <circle cx="32" cy="32" r="30" stroke="currentColor" strokeWidth="2" opacity="0.3"/>
+              <path d="M32 20v24M20 32h24" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            <h3>No lending offers yet</h3>
+            <p>Be the first to create a lending offer!</p>
+          </div>
+        ) : (
+          offers.map((offer) => (
+            <OfferCard 
+              key={offer.id} 
+              offer={offer} 
+              currentUser={address}
+              onBorrow={() => handleBorrow(offer.id, offer)}
+            />
+          ))
+        )}
+      </div>
+    </div>
+  );
+};
+
+const OfferCard = ({ offer, currentUser, onBorrow }) => {
+  const ensData = useENS(offer.lenderAddress);
+  const efpData = useEFPProfile(offer.lenderAddress);
+  const isOwnOffer = currentUser && offer.lenderAddress.toLowerCase() === currentUser.toLowerCase();
+  
+  const displayName = efpData.name || ensData.name || `${offer.lenderAddress.slice(0, 6)}...${offer.lenderAddress.slice(-4)}`;
+  const avatar = efpData.avatar || ensData.avatar;
+  const totalRepayment = parseFloat(offer.amount) * (1 + offer.interestRate / 100);
+  const daysAgo = Math.floor((Date.now() - offer.createdAt) / (1000 * 60 * 60 * 24));
+
+  return (
+    <div className={`offer-card ${offer.status !== 'active' ? 'inactive' : ''}`}>
+      <div className="offer-header">
+        <div className="lender-info">
+          <UserAvatar 
+            address={offer.lenderAddress}
+            ensAvatar={avatar}
+            ensName={displayName}
+            size={40}
+          />
+          <div className="lender-details">
+            <div className="lender-name">{displayName}</div>
+            <div className="offer-time">{daysAgo === 0 ? 'Today' : `${daysAgo}d ago`}</div>
+          </div>
+        </div>
+        <div className={`offer-status status-${offer.status}`}>
+          {offer.status}
+        </div>
+      </div>
+
+      <div className="offer-details">
+        <div className="detail-row">
+          <span className="detail-label">Amount</span>
+          <span className="detail-value highlight">{offer.amount} ETH</span>
+        </div>
+        <div className="detail-row">
+          <span className="detail-label">Interest Rate</span>
+          <span className="detail-value">{offer.interestRate}%</span>
+        </div>
+        <div className="detail-row">
+          <span className="detail-label">Duration</span>
+          <span className="detail-value">{offer.duration} days</span>
+        </div>
+        <div className="detail-row total">
+          <span className="detail-label">Total Repayment</span>
+          <span className="detail-value">{totalRepayment.toFixed(4)} ETH</span>
+        </div>
+      </div>
+
+      {offer.description && (
+        <div className="offer-description">
+          {offer.description}
+        </div>
+      )}
+
+      <div className="offer-actions">
+        {isOwnOffer ? (
+          <div className="own-offer-badge">Your Offer</div>
+        ) : offer.status === 'active' ? (
+          <button className="borrow-btn connect-btn" onClick={onBorrow}>
+            💬 Connect to Discuss
+          </button>
+        ) : (
+          <div className="inactive-badge">
+            {offer.status === 'borrowed' ? 'Already Borrowed' : 'Not Available'}
+          </div>
+        )}
+      </div>
+
+      <div className="risk-warning">
+        ⚠️ P2P lending - Connect with lender in chat to arrange the loan details
+      </div>
+    </div>
+  );
+};
+
+export default LendingMarketplace;

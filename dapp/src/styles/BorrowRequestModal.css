@@ -1,0 +1,320 @@
+.borrow-request-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.borrow-request-modal {
+  background: linear-gradient(135deg, #1e1e2e 0%, #2a2a3e 100%);
+  border: 2px solid rgba(26, 115, 232, 0.3);
+  border-radius: 20px;
+  max-width: 550px;
+  width: 90%;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(26, 115, 232, 0.4);
+  animation: slideUp 0.4s ease-out;
+  position: relative;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 1.75rem;
+  border-bottom: 2px solid rgba(26, 115, 232, 0.2);
+  background: rgba(26, 115, 232, 0.1);
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modal-close {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+  background: rgba(255, 59, 48, 0.3);
+  border-color: rgba(255, 59, 48, 0.5);
+  transform: rotate(90deg);
+}
+
+.request-content {
+  padding: 1.75rem;
+}
+
+.borrower-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: rgba(26, 115, 232, 0.1);
+  border: 1px solid rgba(26, 115, 232, 0.2);
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.borrower-details {
+  flex: 1;
+}
+
+.borrower-details h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.borrower-address {
+  margin: 0;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-family: 'Courier New', monospace;
+}
+
+.request-details {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+
+.detail-value {
+  font-size: 1rem;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.amount-highlight {
+  color: #1A73E8;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.total-row {
+  margin-top: 0.75rem;
+  padding-top: 1rem;
+  border-top: 2px solid rgba(26, 115, 232, 0.3);
+  border-bottom: none;
+}
+
+.total-highlight {
+  color: #4FC3F7;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.request-reason {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.request-reason .detail-label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.request-reason p {
+  margin: 0;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 3px solid #1A73E8;
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.request-actions {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.reject-btn,
+.accept-btn {
+  flex: 1;
+  padding: 1rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.reject-btn {
+  background: linear-gradient(135deg, rgba(255, 59, 48, 0.2), rgba(255, 59, 48, 0.3));
+  border: 2px solid rgba(255, 59, 48, 0.4);
+  color: #FF3B30;
+}
+
+.reject-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(255, 59, 48, 0.3), rgba(255, 59, 48, 0.4));
+  border-color: rgba(255, 59, 48, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 59, 48, 0.3);
+}
+
+.accept-btn {
+  background: linear-gradient(135deg, #1A73E8, #4FC3F7);
+  border: 2px solid rgba(26, 115, 232, 0.4);
+  color: #ffffff;
+}
+
+.accept-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1557b0, #3ba3d6);
+  border-color: rgba(26, 115, 232, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(26, 115, 232, 0.4);
+}
+
+.reject-btn:disabled,
+.accept-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.modal-note {
+  text-align: center;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+  padding: 0.75rem;
+  background: rgba(26, 115, 232, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(26, 115, 232, 0.2);
+}
+
+/* Scrollbar styling */
+.borrow-request-modal::-webkit-scrollbar {
+  width: 8px;
+}
+
+.borrow-request-modal::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.borrow-request-modal::-webkit-scrollbar-thumb {
+  background: rgba(26, 115, 232, 0.4);
+  border-radius: 10px;
+}
+
+.borrow-request-modal::-webkit-scrollbar-thumb:hover {
+  background: rgba(26, 115, 232, 0.6);
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .borrow-request-modal {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .modal-header {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .modal-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .request-content {
+    padding: 1.5rem;
+  }
+
+  .borrower-info {
+    padding: 1rem;
+  }
+
+  .request-actions {
+    flex-direction: column;
+  }
+
+  .reject-btn,
+  .accept-btn {
+    width: 100%;
+  }
+
+  .amount-highlight {
+    font-size: 1.1rem;
+  }
+
+  .total-highlight {
+    font-size: 1.15rem;
+  }
+}

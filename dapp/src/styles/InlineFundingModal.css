@@ -1,0 +1,362 @@
+.inline-funding-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.inline-funding-modal {
+  background: linear-gradient(145deg, rgba(20, 21, 26, 0.98), rgba(30, 31, 36, 0.98));
+  border: 2px solid rgba(79, 195, 247, 0.3);
+  border-radius: 24px;
+  padding: 2.5rem;
+  max-width: 550px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.inline-funding-modal .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.inline-funding-modal .modal-header h2 {
+  font-size: 1.75rem;
+  color: #4FC3F7;
+  margin: 0;
+  font-weight: 600;
+}
+
+.inline-funding-modal .modal-close {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  color: #E8EAED;
+  font-size: 1.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.inline-funding-modal .modal-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: rotate(90deg);
+}
+
+.funding-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.borrower-info {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: rgba(79, 195, 247, 0.05);
+  border: 1px solid rgba(79, 195, 247, 0.2);
+  border-radius: 16px;
+}
+
+.borrower-details h3 {
+  color: #E8EAED;
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.borrower-address {
+  color: #9AA0A6;
+  font-size: 0.875rem;
+  margin: 0;
+  font-family: monospace;
+}
+
+/* Vault Balance Info */
+.vault-balance-info {
+  padding: 1rem 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+}
+
+.balance-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.balance-label {
+  color: #9AA0A6;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.balance-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.balance-value.sufficient {
+  color: #4CAF50;
+}
+
+.balance-value.insufficient {
+  color: #f44336;
+}
+
+.balance-warning {
+  margin: 0.75rem 0 0 0;
+  padding: 0.75rem;
+  background: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  border-radius: 8px;
+  color: #f44336;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.loan-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 16px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.detail-row:last-of-type {
+  border-bottom: none;
+}
+
+.detail-row.total-row {
+  padding-top: 1rem;
+  border-top: 2px solid rgba(79, 195, 247, 0.3);
+  margin-top: 0.5rem;
+}
+
+.detail-label {
+  color: #9AA0A6;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.detail-value {
+  color: #E8EAED;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.detail-value.amount-highlight {
+  color: #4FC3F7;
+  font-size: 1.5rem;
+}
+
+.detail-value.total-highlight {
+  color: #4FC3F7;
+  font-size: 1.3rem;
+}
+
+.loan-reason {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.loan-reason p {
+  color: #E8EAED;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  border-radius: 12px;
+  color: #F44336;
+}
+
+.error-message span {
+  font-size: 1.5rem;
+}
+
+.error-message p {
+  margin: 0;
+  flex: 1;
+}
+
+.tx-info {
+  padding: 1rem;
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  border-radius: 12px;
+}
+
+.tx-info p {
+  color: #9AA0A6;
+  margin: 0 0 0.5rem 0;
+  font-size: 0.875rem;
+}
+
+.tx-info a {
+  color: #4FC3F7;
+  text-decoration: none;
+  font-family: monospace;
+  font-size: 0.875rem;
+  word-break: break-all;
+}
+
+.tx-info a:hover {
+  text-decoration: underline;
+}
+
+.funding-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.funding-actions button {
+  flex: 1;
+  padding: 1rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: #E8EAED;
+}
+
+.cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.fund-btn {
+  background: linear-gradient(135deg, #4CAF50, #8BC34A);
+  color: #fff;
+}
+
+.fund-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+.processing-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(79, 195, 247, 0.2);
+  border-top-color: #4FC3F7;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.processing-state p {
+  color: #9AA0A6;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.funding-note {
+  color: #9AA0A6;
+  font-size: 0.875rem;
+  text-align: center;
+  margin: 0;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@media (max-width: 640px) {
+  .inline-funding-modal {
+    padding: 2rem 1.5rem;
+  }
+
+  .inline-funding-modal .modal-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .borrower-info {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .funding-actions {
+    flex-direction: column;
+  }
+}

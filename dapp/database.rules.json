@@ -12,7 +12,16 @@
         ".read": true,
         ".write": true,
         "$borrowId": {
-          ".validate": "newData.hasChildren(['lenderAddress', 'amount', 'totalRepayment', 'borrowedAt', 'dueDate', 'status'])"
+          ".validate": "newData.hasChildren(['lenderAddress', 'amount', 'totalRepayment', 'dueDate', 'status'])"
+        }
+      }
+    },
+    "lenderLoans": {
+      "$lenderAddress": {
+        ".read": true,
+        ".write": true,
+        "$loanId": {
+          ".validate": "newData.hasChildren(['borrowerAddress', 'amount', 'totalRepayment', 'dueDate', 'status'])"
         }
       }
     },
@@ -20,12 +29,13 @@
       ".read": true,
       "$conversationId": {
         ".write": true,
-        ".validate": "newData.hasChildren(['participants', 'createdAt'])"
+        ".validate": "newData.hasChildren(['participants', 'createdAt']) || !newData.exists()"
       }
     },
     "messages": {
       "$conversationId": {
         ".read": true,
+        ".write": true,
         "$messageId": {
           ".write": true
         }

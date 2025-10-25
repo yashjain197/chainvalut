@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
+import { usePublicClient, useAccount } from 'wagmi';
+import { normalize } from 'viem/ens';
+import { database } from '../config/firebase';
+import { ref as dbRef, push, set, get } from 'firebase/database';
 import '../styles/ActionPanel.css';
 
-const ActionPanel = ({ contract, onTransactionComplete }) => {
+const ActionPanel = ({ contract, onTransactionComplete, borrowRequestToFund, onFundingComplete, repaymentLoan, onRepaymentComplete }) => {
   const [activeTab, setActiveTab] = useState('deposit');
   const [depositAmount, setDepositAmount] = useState('');
   const [withdrawAmount, setWithdrawAmount] = useState('');
@@ -13,6 +17,28 @@ const ActionPanel = ({ contract, onTransactionComplete }) => {
   const [txHash, setTxHash] = useState('');
   const [error, setError] = useState('');
   const [txStatus, setTxStatus] = useState(''); // 'pending', 'confirming', 'success'
+  const [resolvedAddress, setResolvedAddress] = useState('');
+  const [resolvingENS, setResolvingENS] = useState(false);
+  const publicClient = usePublicClient();
+  const { address: currentAddress } = useAccount();
+
+  // Auto-switch to Pay tab and populate when there's a borrow request to fund
+  useEffect(() => {
+    if (borrowRequestToFund) {
+      setActiveTab('pay');
+      setPayAddress(borrowRequestToFund.borrowerAddress || borrowRequestToFund.from);
+      setPayAmount(borrowRequestToFund.amount);
+    }
+  }, [borrowRequestToFund]);
+
+  // Auto-switch to Pay tab and populate when there's a loan to repay
+  useEffect(() => {
+    if (repaymentLoan) {
+      setActiveTab('pay');
+      setPayAddress(repaymentLoan.lenderAddress);
+      setPayAmount(repaymentLoan.installmentAmount || repaymentLoan.totalRepayment || repaymentLoan.remainingAmount);
+    }
+  }, [repaymentLoan]);
 
   const generateRef = () => {
     return ethers.hexlify(ethers.randomBytes(32));
@@ -140,8 +166,8 @@ const ActionPanel = ({ contract, onTransactionComplete }) => {
       return;
     }
 
-    if (!payAddress || !ethers.isAddress(payAddress)) {
-      setError('Please enter a valid address');
+    if (!payAddress) {
+      setError('Please enter an address or ENS name');
       return;
     }
 
@@ -151,18 +177,243 @@ const ActionPanel = ({ contract, onTransactionComplete }) => {
       setTxHash('');
       setTxStatus('pending');
 
+      let targetAddress = payAddress;
+
+      // Check if it's an ENS name (ends with .eth)
+      if (payAddress.endsWith('.eth')) {
+        setResolvingENS(true);
+        try {
+          const ensAddress = await publicClient.getEnsAddress({
+            name: normalize(payAddress),
+          });
+          
+          if (!ensAddress) {
+            setError(`ENS name "${payAddress}" not found. Please check the spelling or use a regular address.`);
+            setLoading(false);
+            setResolvingENS(false);
+            setTxStatus('');
+            return;
+          }
+          
+          targetAddress = ensAddress;
+          setResolvedAddress(ensAddress);
+        } catch (ensError) {
+          console.error('ENS resolution error:', ensError);
+          setError(`Could not resolve "${payAddress}". Please use a regular Ethereum address (0x...) instead.`);
+          setLoading(false);
+          setResolvingENS(false);
+          setTxStatus('');
+          return;
+        } finally {
+          setResolvingENS(false);
+        }
+      } else if (!ethers.isAddress(payAddress)) {
+        setError('Please enter a valid address or ENS name (.eth)');
+        setLoading(false);
+        setTxStatus('');
+        return;
+      }
+
       const amount = ethers.parseEther(payAmount);
       const ref = generateRef();
       
-      const tx = await contract.pay(payAddress, amount, ref);
+      const tx = await contract.pay(targetAddress, amount, ref);
       setTxHash(tx.hash);
       setTxStatus('confirming');
       
-      await tx.wait(1);
+      const receipt = await tx.wait(1);
+      
+      // Check if transaction was successful
+      if (receipt.status !== 1) {
+        setError('Transaction failed. No funds were transferred.');
+        setTxStatus('');
+        setLoading(false);
+        return;
+      }
+      
       setTxStatus('success');
+
+      // If this is a loan funding from a borrow request, create the loan record
+      if (borrowRequestToFund) {
+        try {
+          const interestRate = parseFloat(borrowRequestToFund.interestRate || '5');
+          const duration = parseInt(borrowRequestToFund.duration || '30');
+          const principalAmount = parseFloat(payAmount);
+          const interestAmount = principalAmount * (interestRate / 100);
+          const totalRepayment = principalAmount + interestAmount;
+          const dueDate = Date.now() + (duration * 24 * 60 * 60 * 1000);
+
+          // Create loan record in Firebase
+          const borrowerAddress = targetAddress.toLowerCase();
+          const lenderAddress = currentAddress.toLowerCase();
+          
+          const loanData = {
+            borrowerAddress,
+            lenderAddress,
+            amount: payAmount,
+            principalAmount: payAmount,
+            interestRate: interestRate.toString(),
+            duration: duration.toString(),
+            totalRepayment: totalRepayment.toFixed(6),
+            remainingAmount: totalRepayment.toFixed(6),
+            dueDate,
+            fundedAt: Date.now(),
+            status: 'active',
+            txHash: tx.hash,
+            reason: borrowRequestToFund.reason || ''
+          };
+
+          // Store in borrows path under borrower's address
+          const borrowsRef = dbRef(database, `borrows/${borrowerAddress}`);
+          const newLoanRef = await push(borrowsRef, loanData);
+
+          // Also store reference under lender's address
+          const lenderLoansRef = dbRef(database, `lenderLoans/${lenderAddress}/${newLoanRef.key}`);
+          await set(lenderLoansRef, {
+            borrowerAddress,
+            amount: payAmount,
+            totalRepayment: totalRepayment.toFixed(6),
+            dueDate,
+            status: 'active'
+          });
+
+          // Send system message to notify borrower that loan is funded
+          // Find the conversation between lender and borrower
+          const conversationsRef = dbRef(database, 'conversations');
+          const conversationsSnapshot = await get(conversationsRef);
+          if (conversationsSnapshot.exists()) {
+            const conversations = conversationsSnapshot.val();
+            const convoId = Object.keys(conversations).find(key => {
+              const convo = conversations[key];
+              return convo.participants?.includes(lenderAddress) && 
+                     convo.participants?.includes(borrowerAddress);
+            });
+            
+            if (convoId) {
+              const messagesRef = dbRef(database, `messages/${convoId}`);
+              
+              // First, send acceptance message
+              await push(messagesRef, {
+                senderId: 'system',
+                type: 'system',
+                text: `✅ Accepted borrow request for ${payAmount} ETH. Transaction successful!`,
+                timestamp: Date.now(),
+              });
+              
+              // Then send loan funded notification
+              await push(messagesRef, {
+                senderId: 'system',
+                type: 'loan-funded',
+                text: `🎉 Loan funded! ${payAmount} ETH has been sent.\n\nLoan Details:\n• Principal: ${payAmount} ETH\n• Interest: ${interestRate}%\n• Total Repayment: ${totalRepayment.toFixed(4)} ETH\n• Due: ${new Date(dueDate).toLocaleDateString()}\n\nPlease repay on time to maintain good credit.`,
+                timestamp: Date.now(),
+              });
+            }
+          }
+
+          console.log('Loan record created:', newLoanRef.key);
+          
+          // Call the callback to clear the funding state
+          if (onFundingComplete) {
+            onFundingComplete();
+          }
+        } catch (firebaseError) {
+          console.error('Error creating loan record:', firebaseError);
+          // Don't fail the whole transaction, just log the error
+        }
+      }
+
+      // If this is a loan repayment, update the loan status and send notification
+      if (repaymentLoan) {
+        try {
+          const isFullRepayment = !repaymentLoan.installmentAmount;
+          const paidAmount = parseFloat(payAmount);
+          const borrowerAddress = currentAddress.toLowerCase();
+          const lenderAddress = targetAddress.toLowerCase();
+
+          // Update loan record
+          const loanRef = dbRef(database, `borrows/${borrowerAddress}/${repaymentLoan.id}`);
+          const loanSnapshot = await get(loanRef);
+          
+          if (loanSnapshot.exists()) {
+            const currentLoan = loanSnapshot.val();
+            const remainingAmount = parseFloat(currentLoan.remainingAmount || currentLoan.totalRepayment);
+            const newRemainingAmount = Math.max(0, remainingAmount - paidAmount);
+            const isComplete = newRemainingAmount === 0 || isFullRepayment;
+
+            await set(loanRef, {
+              ...currentLoan,
+              remainingAmount: newRemainingAmount.toFixed(6),
+              status: isComplete ? 'repaid' : 'active',
+              repaidAt: isComplete ? Date.now() : currentLoan.repaidAt,
+              lastPaymentAt: Date.now(),
+              lastPaymentTxHash: tx.hash,
+              paidInstallments: [
+                ...(currentLoan.paidInstallments || []),
+                {
+                  amount: payAmount,
+                  txHash: tx.hash,
+                  timestamp: Date.now()
+                }
+              ]
+            });
+
+            // Update lender's reference
+            const lenderLoanRef = dbRef(database, `lenderLoans/${lenderAddress}/${repaymentLoan.id}`);
+            await set(lenderLoanRef, {
+              borrowerAddress,
+              amount: currentLoan.amount,
+              totalRepayment: currentLoan.totalRepayment,
+              dueDate: currentLoan.dueDate,
+              status: isComplete ? 'repaid' : 'active'
+            });
+
+            // Send system message
+            const conversationsRef = dbRef(database, 'conversations');
+            const conversationsSnapshot = await get(conversationsRef);
+            if (conversationsSnapshot.exists()) {
+              const conversations = conversationsSnapshot.val();
+              const convoId = Object.keys(conversations).find(key => {
+                const convo = conversations[key];
+                return convo.participants?.includes(lenderAddress) && 
+                       convo.participants?.includes(borrowerAddress);
+              });
+              
+              if (convoId) {
+                const messagesRef = dbRef(database, `messages/${convoId}`);
+                if (isComplete) {
+                  await push(messagesRef, {
+                    senderId: 'system',
+                    type: 'loan-repaid',
+                    text: `✅ Loan fully repaid! ${payAmount} ETH payment received.\n\nLoan completed successfully. Thank you for maintaining good credit! 🎉`,
+                    timestamp: Date.now(),
+                  });
+                } else {
+                  await push(messagesRef, {
+                    senderId: 'system',
+                    type: 'installment-paid',
+                    text: `💰 Installment payment received: ${payAmount} ETH\n\nRemaining balance: ${newRemainingAmount.toFixed(4)} ETH`,
+                    timestamp: Date.now(),
+                  });
+                }
+              }
+            }
+          }
+
+          console.log('Loan repayment processed');
+          
+          // Call the callback to clear the repayment state
+          if (onRepaymentComplete) {
+            onRepaymentComplete();
+          }
+        } catch (firebaseError) {
+          console.error('Error processing repayment:', firebaseError);
+          // Don't fail the whole transaction, just log the error
+        }
+      }
       
       setPayAmount('');
       setPayAddress('');
+      setResolvedAddress('');
       onTransactionComplete();
       
       setTimeout(() => {
@@ -270,14 +521,27 @@ const ActionPanel = ({ contract, onTransactionComplete }) => {
         {activeTab === 'pay' && (
           <div className="action-form">
             <div className="form-group">
-              <label>Recipient Address</label>
+              <label>Recipient Address or ENS</label>
               <input
                 type="text"
-                placeholder="0x..."
+                placeholder="0x... or vitalik.eth"
                 value={payAddress}
-                onChange={(e) => setPayAddress(e.target.value)}
+                onChange={(e) => {
+                  setPayAddress(e.target.value);
+                  setResolvedAddress('');
+                }}
                 disabled={loading}
               />
+              {resolvedAddress && (
+                <small className="resolved-ens">
+                  ✓ Resolved to: {resolvedAddress.slice(0, 6)}...{resolvedAddress.slice(-4)}
+                </small>
+              )}
+              {resolvingENS && (
+                <small className="resolving-ens">
+                  🔍 Resolving ENS name...
+                </small>
+              )}
             </div>
             <div className="form-group">
               <label>Amount (ETH)</label>
@@ -293,9 +557,9 @@ const ActionPanel = ({ contract, onTransactionComplete }) => {
             <button 
               className="action-button primary"
               onClick={handlePay}
-              disabled={loading}
+              disabled={loading || resolvingENS}
             >
-              {loading ? 'Processing...' : 'Send Payment'}
+              {resolvingENS ? 'Resolving ENS...' : loading ? 'Processing...' : 'Send Payment'}
             </button>
           </div>
         )}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, NavLink, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
 import { useEnhancedWeb3 } from './hooks/useEnhancedWeb3';
 import { useENS } from './hooks/useENS';
 import EnhancedWalletConnect from './components/EnhancedWalletConnect';
@@ -10,11 +10,6 @@ import TransactionHistory from './components/TransactionHistory';
 import LendingMarketplace from './components/LendingMarketplace';
 import Chat from './components/Chat';
 import Profile from './components/Profile';
-import Payment from './components/Payment';
-import UserProfile from './components/UserProfile';
-import LoanStats from './components/LoanStats';
-import { LoanNotification } from './components/LoanNotification';
-import { LoanFundedNotification } from './components/LoanFundedNotification';
 import './App.css';
 
 function App() {
@@ -32,14 +27,6 @@ function App() {
   return (
     <Router>
       <div className="app">
-        {/* Loan notifications at top right */}
-        {isConnected && address && (
-          <>
-            <LoanNotification userAddress={address} />
-            <LoanFundedNotification />
-          </>
-        )}
-        
         <header className="app-header">
           <div className="logo">
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
@@ -113,8 +100,6 @@ function App() {
             <Route path="/lending" element={<LendingMarketplace />} />
             <Route path="/chat" element={<Chat />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/profile/:address" element={<UserProfile />} />
-            <Route path="/payment/:borrowId?" element={<Payment />} />
           </Routes>
         </main>
 
@@ -213,20 +198,6 @@ const WelcomePage = () => {
 };
 
 const DashboardPage = ({ ensData, address, contract, balance, ethBalance, updateBalances }) => {
-  const location = useLocation();
-  const [borrowRequestToFund, setBorrowRequestToFund] = React.useState(null);
-  const [repaymentLoan, setRepaymentLoan] = React.useState(null);
-  
-  React.useEffect(() => {
-    if (location.state?.openPayment && location.state?.borrowRequest) {
-      setBorrowRequestToFund(location.state.borrowRequest);
-      setRepaymentLoan(null);
-    } else if (location.state?.openPayment && location.state?.repaymentLoan) {
-      setRepaymentLoan(location.state.repaymentLoan);
-      setBorrowRequestToFund(null);
-    }
-  }, [location]);
-
   return (
     <div className="dashboard">
       {ensData.name && (
@@ -261,16 +232,6 @@ const DashboardPage = ({ ensData, address, contract, balance, ethBalance, update
           <ActionPanel
             contract={contract}
             onTransactionComplete={updateBalances}
-            borrowRequestToFund={borrowRequestToFund}
-            onFundingComplete={() => setBorrowRequestToFund(null)}
-            repaymentLoan={repaymentLoan}
-            onRepaymentComplete={() => setRepaymentLoan(null)}
-          />
-        </div>
-
-        <div className="grid-item loan-stats-section">
-          <LoanStats
-            balance={balance}
           />
         </div>
 
