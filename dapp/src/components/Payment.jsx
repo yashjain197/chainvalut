@@ -397,7 +397,7 @@ const Payment = () => {
 
           <div className="detail-row total-row">
             <span className="detail-label">Total Repayment</span>
-            <span className="detail-value total">{borrow.totalRepayment.toFixed(4)} ETH</span>
+            <span className="detail-value total">{parseFloat(borrow.totalRepayment || 0).toFixed(4)} ETH</span>
           </div>
         </div>
 
@@ -431,7 +431,7 @@ const Payment = () => {
                 Processing...
               </>
             ) : (
-              `Pay ${borrow.totalRepayment.toFixed(4)} ETH`
+              `Pay ${parseFloat(borrow.totalRepayment || 0).toFixed(4)} ETH`
             )}
           </button>
 
@@ -452,7 +452,7 @@ const Payment = () => {
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M8 0C3.58 0 0 3.58 0 8s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm1 12H7v-2h2v2zm0-3H7V4h2v5z"/>
           </svg>
-          <p>This will send {borrow.totalRepayment.toFixed(4)} ETH to the lender's address. Make sure you have sufficient balance plus gas fees.</p>
+          <p>This will send {parseFloat(borrow.totalRepayment || 0).toFixed(4)} ETH to the lender's address. Make sure you have sufficient balance plus gas fees.</p>
         </div>
       </div>
     </div>

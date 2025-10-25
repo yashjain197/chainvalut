@@ -6,7 +6,9 @@ import { ref, onValue, set } from 'firebase/database';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { useENS } from '../hooks/useENS';
 import { useEFPProfile } from '../hooks/useEFPProfile';
+import { useEnhancedWeb3 } from '../hooks/useEnhancedWeb3';
 import UserAvatar from './UserAvatar';
+import NomineeManagement from './NomineeManagement';
 import '../styles/Profile.css';
 
 const Profile = () => {
@@ -14,6 +16,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const ensData = useENS(address);
   const efpData = useEFPProfile(address);
+  const { contract, balance } = useEnhancedWeb3();
   const [borrows, setBorrows] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [profileData, setProfileData] = useState({
@@ -520,6 +523,15 @@ const Profile = () => {
             </div>
           )}
 
+          {/* Nominee Management Section */}
+          {contract && address && (
+            <NomineeManagement 
+              contract={contract} 
+              address={address}
+              balance={balance}
+            />
+          )}
+
           {/* Borrows Section */}
           {borrows.length > 0 && (
             <div className="profile-section">
@@ -574,7 +586,7 @@ const BorrowCard = ({ borrow, navigate }) => {
         </div>
         <div className="borrow-row">
           <span>Total Repayment:</span>
-          <span className="borrow-value highlight">{borrow.totalRepayment.toFixed(4)} ETH</span>
+          <span className="borrow-value highlight">{parseFloat(borrow.totalRepayment || 0).toFixed(4)} ETH</span>
         </div>
         <div className="borrow-row">
           <span>Due Date:</span>

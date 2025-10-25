@@ -231,7 +231,7 @@ const BorrowItem = ({ borrow, onQuickPay, isPaying, isConfirming, vaultBalance }
         </div>
         <div className="detail-row">
           <span>Total to Repay</span>
-          <span className="detail-value highlight">{borrow.totalRepayment.toFixed(4)} ETH</span>
+          <span className="detail-value highlight">{parseFloat(borrow.totalRepayment || 0).toFixed(4)} ETH</span>
         </div>
         <div className="detail-row">
           <span>Due Date</span>
