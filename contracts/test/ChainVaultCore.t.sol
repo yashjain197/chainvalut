@@ -369,7 +369,7 @@ contract ChainVaultCoreTest is Test {
 
     // ============ Invariant: solvency ============
 
-    function invariant_VaultSolvent() public {
+    function invariant_VaultSolvent() public view {
         // Contract ETH must always equal totalLiabilities
         assertEq(address(vault).balance, vault.totalLiabilities());
     }

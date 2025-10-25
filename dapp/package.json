@@ -19,7 +19,9 @@
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.4",
     "viem": "^2.38.3",
-    "wagmi": "^2.18.1"
+    "wagmi": "^2.18.1",
+    "ethers": "^6.13.4",
+    "@lit-protocol/lit-node-client": "^7.3.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
