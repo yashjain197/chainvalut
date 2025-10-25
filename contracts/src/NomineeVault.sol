@@ -140,7 +140,7 @@ contract NomineeVault is ChainVaultCore {
     
     // ==================== Constructor ====================
     
-    constructor() ChainVaultCore() {}
+    constructor(address priceFeed_) ChainVaultCore(priceFeed_) {}
     
     // ==================== Overridden Core Functions (with activity tracking) ====================
     
@@ -148,12 +148,21 @@ contract NomineeVault is ChainVaultCore {
      * @notice Deposit ETH into the vault (overridden to track activity)
      * @param ref Reference ID for the transaction
      */
-    function deposit(bytes32 ref) external payable override whenNotPaused updateActivity {
-        if (msg.value == 0) revert InvalidAmount();
-        
-        _updateBalance(msg.sender, balanceOf(msg.sender) + msg.value);
-        
-        emit Deposited(msg.sender, msg.value, ref, block.timestamp);
+    function deposit(bytes32 ref) external payable override whenNotPaused nonReentrant updateActivity {
+        if (msg.value == 0) revert ZeroAmount();
+        _balance[msg.sender] += msg.value;
+        totalLiabilities += msg.value;
+
+        emit Deposited(msg.sender, msg.value, _balance[msg.sender], ref);
+        _pushHistory(msg.sender, TxRecord({
+            timestamp: uint64(block.timestamp),
+            from: msg.sender,
+            to: address(this),
+            action: Action.Deposit,
+            amount: msg.value,
+            balanceAfter: _balance[msg.sender],
+            ref: ref
+        }));
     }
     
     /**
@@ -162,17 +171,29 @@ contract NomineeVault is ChainVaultCore {
      * @param amount Amount to pay
      * @param ref Reference ID for the transaction
      */
-    function pay(address to, uint256 amount, bytes32 ref) external override whenNotPaused updateActivity nonReentrant {
+    function pay(address payable to, uint256 amount, bytes32 ref) external override whenNotPaused updateActivity nonReentrant {
+        if (amount == 0) revert ZeroAmount();
         if (to == address(0)) revert InvalidAddress();
-        if (amount == 0) revert InvalidAmount();
-        if (balanceOf(msg.sender) < amount) {
-            revert InsufficientBalance(amount, balanceOf(msg.sender));
-        }
-        
-        _updateBalance(msg.sender, balanceOf(msg.sender) - amount);
-        _updateBalance(to, balanceOf(to) + amount);
-        
-        emit Paid(msg.sender, to, amount, ref, block.timestamp);
+
+        uint256 bal = _balance[msg.sender];
+        if (bal < amount) revert InsufficientBalance(bal, amount);
+
+        _balance[msg.sender] = bal - amount;
+        totalLiabilities -= amount;
+
+        (bool ok, ) = to.call{value: amount}("");
+        if (!ok) revert TransferFailed();
+
+        emit Paid(msg.sender, to, amount, _balance[msg.sender], ref);
+        _pushHistory(msg.sender, TxRecord({
+            timestamp: uint64(block.timestamp),
+            from: msg.sender,
+            to: to,
+            action: Action.Payment,
+            amount: amount,
+            balanceAfter: _balance[msg.sender],
+            ref: ref
+        }));
     }
     
     /**
@@ -188,18 +209,28 @@ contract NomineeVault is ChainVaultCore {
         updateActivity 
         nonReentrant
     {
+        if (amount == 0) revert ZeroAmount();
         if (to == address(0)) revert InvalidAddress();
-        if (amount == 0) revert InvalidAmount();
-        if (balanceOf(msg.sender) < amount) {
-            revert InsufficientBalance(amount, balanceOf(msg.sender));
-        }
-        
-        _updateBalance(msg.sender, balanceOf(msg.sender) - amount);
-        
-        (bool success, ) = to.call{value: amount}("");
-        if (!success) revert TransferFailed();
-        
-        emit Withdrawn(msg.sender, amount, to, ref, block.timestamp);
+
+        uint256 bal = _balance[msg.sender];
+        if (bal < amount) revert InsufficientBalance(bal, amount);
+
+        _balance[msg.sender] = bal - amount;
+        totalLiabilities -= amount;
+
+        (bool ok, ) = to.call{value: amount}("");
+        if (!ok) revert TransferFailed();
+
+        emit Withdrawn(msg.sender, to, amount, _balance[msg.sender], ref);
+        _pushHistory(msg.sender, TxRecord({
+            timestamp: uint64(block.timestamp),
+            from: msg.sender,
+            to: to,
+            action: Action.Withdraw,
+            amount: amount,
+            balanceAfter: _balance[msg.sender],
+            ref: ref
+        }));
     }
     
     /**
@@ -207,15 +238,25 @@ contract NomineeVault is ChainVaultCore {
      * @param ref Reference ID for the transaction
      */
     function withdrawAll(bytes32 ref) external override whenNotPaused updateActivity nonReentrant {
-        uint256 amount = balanceOf(msg.sender);
-        if (amount == 0) revert InvalidAmount();
-        
-        _updateBalance(msg.sender, 0);
-        
-        (bool success, ) = payable(msg.sender).call{value: amount}("");
-        if (!success) revert TransferFailed();
-        
-        emit Withdrawn(msg.sender, amount, msg.sender, ref, block.timestamp);
+        uint256 amount = _balance[msg.sender];
+        if (amount == 0) revert ZeroAmount();
+
+        _balance[msg.sender] = 0;
+        totalLiabilities -= amount;
+
+        (bool ok, ) = payable(msg.sender).call{value: amount}("");
+        if (!ok) revert TransferFailed();
+
+        emit Withdrawn(msg.sender, msg.sender, amount, _balance[msg.sender], ref);
+        _pushHistory(msg.sender, TxRecord({
+            timestamp: uint64(block.timestamp),
+            from: msg.sender,
+            to: msg.sender,
+            action: Action.Withdraw,
+            amount: amount,
+            balanceAfter: _balance[msg.sender],
+            ref: ref
+        }));
     }
     
     // ==================== Nominee Management Functions ====================
@@ -364,18 +405,19 @@ contract NomineeVault is ChainVaultCore {
         
         // Take balance snapshot on first claim
         if (config.balanceSnapshot == 0) {
-            config.balanceSnapshot = balanceOf(user);
+            config.balanceSnapshot = _balance[user];
         }
         
         // Calculate claim amount based on snapshot balance
         uint256 sharePercentage = nomineeShares[user][nomineeIndex];
         uint256 claimAmount = (config.balanceSnapshot * sharePercentage) / 100;
         
-        if (claimAmount == 0) revert InvalidAmount();
+        if (claimAmount == 0) revert ZeroAmount();
         
         // Update balances
-        uint256 currentBalance = balanceOf(user);
-        _updateBalance(user, currentBalance - claimAmount);
+        uint256 currentBalance = _balance[user];
+        _balance[user] = currentBalance - claimAmount;
+        totalLiabilities -= claimAmount;
         config.claimedAmount += claimAmount;
         
         // Transfer ETH to nominee

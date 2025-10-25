@@ -33,7 +33,7 @@ contract NomineeVaultTest is Test {
         nominee2 = makeAddr("nominee2");
         nominee3 = makeAddr("nominee3");
         
-        vault = new NomineeVault();
+        vault = new NomineeVault(address(0)); // No price feed for tests
         
         // Fund test accounts
         vm.deal(user1, 100 ether);
@@ -82,11 +82,13 @@ contract NomineeVaultTest is Test {
         vm.startPrank(user1);
         
         vault.deposit{value: 1 ether}(TEST_REF);
-        vault.pay(user2, 0.5 ether, TEST_REF);
+        
+        uint256 user2BalanceBefore = user2.balance;
+        vault.pay(payable(user2), 0.5 ether, TEST_REF);
         
         assertEq(vault.lastActivity(user1), block.timestamp);
         assertEq(vault.balanceOf(user1), 0.5 ether);
-        assertEq(vault.balanceOf(user2), 0.5 ether);
+        assertEq(user2.balance, user2BalanceBefore + 0.5 ether); // user2's wallet balance, not vault balance
         
         vm.stopPrank();
     }
@@ -617,7 +619,7 @@ contract NomineeVaultTest is Test {
         vm.warp(block.timestamp + 365 days + 1);
         
         vm.startPrank(nominee1);
-        vm.expectRevert(ChainVaultCore.InvalidAmount.selector);
+        vm.expectRevert(ChainVaultCore.ZeroAmount.selector);
         vault.claimNomineeShare(user1, 0);
         vm.stopPrank();
     }

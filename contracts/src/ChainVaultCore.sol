@@ -53,7 +53,7 @@ contract ChainVaultCore is ReentrancyGuard {
     event Unpaused(address indexed by);
 
     // ===== Accounting =====
-    mapping(address => uint256) private _balance;
+    mapping(address => uint256) internal _balance;
     uint256 public totalLiabilities;
 
     function balanceOf(address user) external view returns (uint256) {
@@ -125,7 +125,7 @@ contract ChainVaultCore is ReentrancyGuard {
     }
 
     // ===== Core: deposit / withdraw / pay =====
-    function deposit(bytes32 ref) external payable whenNotPaused nonReentrant {
+    function deposit(bytes32 ref) external payable virtual whenNotPaused nonReentrant {
         if (msg.value == 0) revert ZeroAmount();
         _balance[msg.sender] += msg.value;
         totalLiabilities += msg.value;
@@ -144,6 +144,7 @@ contract ChainVaultCore is ReentrancyGuard {
 
     function withdraw(uint256 amount, address payable to, bytes32 ref)
         external
+        virtual
         whenNotPaused
         nonReentrant
     {
@@ -173,6 +174,7 @@ contract ChainVaultCore is ReentrancyGuard {
 
     function pay(address payable to, uint256 amount, bytes32 ref)
         external
+        virtual
         whenNotPaused
         nonReentrant
     {
@@ -200,7 +202,7 @@ contract ChainVaultCore is ReentrancyGuard {
         }));
     }
 
-    function withdrawAll(bytes32 ref) external whenNotPaused nonReentrant {
+    function withdrawAll(bytes32 ref) external virtual whenNotPaused nonReentrant {
         uint256 amount = _balance[msg.sender];
         if (amount == 0) revert ZeroAmount();
 
