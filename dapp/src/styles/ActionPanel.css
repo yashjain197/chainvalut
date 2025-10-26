@@ -227,6 +227,24 @@
   opacity: 1;
 }
 
+.tx-details-btn {
+  background: linear-gradient(135deg, #1a73e8 0%, #00e0ff 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.3s;
+  margin: 0.5rem 0.5rem 0 0;
+}
+
+.tx-details-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(26, 115, 232, 0.4);
+}
+
 .spinner {
   width: 16px;
   height: 16px;

@@ -56,6 +56,15 @@
         ".write": true,
         ".validate": "newData.hasChildren(['walletAddress', 'updatedAt'])"
       }
+    },
+    "payrollSchedules": {
+      "$userAddress": {
+        ".read": true,
+        ".write": true,
+        "$scheduleId": {
+          ".validate": "newData.hasChildren(['name', 'frequency', 'recipients', 'createdAt'])"
+        }
+      }
     }
   }
 }

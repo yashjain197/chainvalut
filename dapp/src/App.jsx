@@ -6,14 +6,14 @@ import EnhancedWalletConnect from './components/EnhancedWalletConnect';
 import UserAvatar from './components/UserAvatar';
 import BalanceCard from './components/BalanceCard';
 import ActionPanel from './components/ActionPanel';
-import TransactionHistory from './components/TransactionHistory';
+import BlockscoutWidget from './components/BlockscoutWidget';
 import LendingMarketplace from './components/LendingMarketplace';
 import Chat from './components/Chat';
 import Profile from './components/Profile';
 import Payment from './components/Payment';
 import UserProfile from './components/UserProfile';
 import LoanStats from './components/LoanStats';
-import ScheduledPayroll from './components/ScheduledPayroll';
+import Payroll from './components/Payroll';
 import { LoanNotification } from './components/LoanNotification';
 import { LoanFundedNotification } from './components/LoanFundedNotification';
 import './App.css';
@@ -125,13 +125,7 @@ function App() {
             <Route path="/profile/:address" element={<UserProfile />} />
             <Route path="/payment/:borrowId?" element={<Payment />} />
             <Route path="/payroll" element={
-              isConnected ? (
-                <ScheduledPayroll />
-              ) : (
-                <div style={{ padding: '40px', textAlign: 'center' }}>
-                  <p>Please connect your wallet to access Automated Payroll</p>
-                </div>
-              )
+              <Payroll contract={contract} address={address} />
             } />
           </Routes>
         </main>
@@ -293,10 +287,8 @@ const DashboardPage = ({ ensData, address, contract, balance, ethBalance, update
         </div>
 
         <div className="grid-item history-section">
-          <TransactionHistory
-            contract={contract}
-            account={address}
-          />
+          {/* Blockscout Blockchain Activity */}
+          <BlockscoutWidget address={address} />
         </div>
       </div>
     </div>

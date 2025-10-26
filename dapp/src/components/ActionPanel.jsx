@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import { usePublicClient, useAccount } from 'wagmi';
+import { usePublicClient, useAccount, useChainId } from 'wagmi';
 import { normalize } from 'viem/ens';
 import { database } from '../config/firebase';
 import { ref as dbRef, push, set, get } from 'firebase/database';
+import { buildExplorerLink } from '../utils/blockscout';
+import TransactionDetailsModal from './TransactionDetailsModal';
 import '../styles/ActionPanel.css';
 
 const ActionPanel = ({ contract, onTransactionComplete, borrowRequestToFund, onFundingComplete, repaymentLoan, onRepaymentComplete }) => {
@@ -19,8 +21,10 @@ const ActionPanel = ({ contract, onTransactionComplete, borrowRequestToFund, onF
   const [txStatus, setTxStatus] = useState(''); // 'pending', 'confirming', 'success'
   const [resolvedAddress, setResolvedAddress] = useState('');
   const [resolvingENS, setResolvingENS] = useState(false);
+  const [showTxDetails, setShowTxDetails] = useState(false);
   const publicClient = usePublicClient();
   const { address: currentAddress } = useAccount();
+  const chainId = useChainId();
 
   // Auto-switch to Pay tab and populate when there's a borrow request to fund
   useEffect(() => {
@@ -596,8 +600,19 @@ const ActionPanel = ({ contract, onTransactionComplete, borrowRequestToFund, onF
               <path d="M8 0C3.6 0 0 3.6 0 8s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8zm-1 12L3 8l1.4-1.4L7 9.2l4.6-4.6L13 6l-6 6z" fill="currentColor"/>
             </svg>
             Transaction confirmed! 
-            <a href={`https://etherscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer" className="tx-link">
-              View on Etherscan →
+            <button 
+              onClick={() => setShowTxDetails(true)}
+              className="tx-details-btn"
+            >
+              📊 View Details
+            </button>
+            <a 
+              href={buildExplorerLink('tx', txHash, chainId)} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="tx-link"
+            >
+              View on Blockscout →
             </a>
           </div>
         )}
@@ -608,12 +623,32 @@ const ActionPanel = ({ contract, onTransactionComplete, borrowRequestToFund, onF
               <path d="M8 0C3.6 0 0 3.6 0 8s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8zm-1 12L3 8l1.4-1.4L7 9.2l4.6-4.6L13 6l-6 6z" fill="currentColor"/>
             </svg>
             Transaction successful! 
-            <a href={`https://etherscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer">
-              View on Etherscan
+            <button 
+              onClick={() => setShowTxDetails(true)}
+              className="tx-details-btn"
+            >
+              📊 View Details
+            </button>
+            <a 
+              href={buildExplorerLink('tx', txHash, chainId)} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="tx-link"
+            >
+              View on Blockscout
             </a>
           </div>
         )}
       </div>
+
+      {/* Transaction Details Modal */}
+      {showTxDetails && txHash && (
+        <TransactionDetailsModal
+          txHash={txHash}
+          chainId={chainId}
+          onClose={() => setShowTxDetails(false)}
+        />
+      )}
     </div>
   );
 };

@@ -55,27 +55,6 @@ const ScheduledPayroll = ({ contract, address }) => {
     loadSchedules();
   }, [loadSchedules]);
 
-  // Add recipient to new schedule
-  const addRecipient = () => {
-    setNewSchedule({
-      ...newSchedule,
-      recipients: [...newSchedule.recipients, { wallet: '', amount: '', name: '' }]
-    });
-  };
-
-  // Remove recipient from new schedule
-  const removeRecipient = (index) => {
-    const recipients = newSchedule.recipients.filter((_, i) => i !== index);
-    setNewSchedule({ ...newSchedule, recipients });
-  };
-
-  // Update recipient data
-  const updateRecipient = (index, field, value) => {
-    const recipients = [...newSchedule.recipients];
-    recipients[index][field] = value;
-    setNewSchedule({ ...newSchedule, recipients });
-  };
-
   // Calculate next payment date based on frequency
   const calculateNextPayment = (startDate, frequency, customInterval, specificDate) => {
     const start = new Date(startDate);
@@ -126,6 +105,139 @@ const ScheduledPayroll = ({ contract, address }) => {
     return nextDate.toISOString();
   };
 
+  // Execute payroll silently (for automated execution)
+  const executePayrollSilently = useCallback(async (schedule) => {
+    if (!contract || !address) return;
+
+    // Check if schedule has ended
+    if (schedule.endDate) {
+      const endDate = new Date(schedule.endDate);
+      const now = new Date();
+      if (now > endDate) {
+        console.log(`Schedule ${schedule.name} has ended`);
+        return;
+      }
+    }
+
+    // Check if payment limit reached
+    if (schedule.duration && schedule.paymentsCompleted >= parseInt(schedule.duration)) {
+      console.log(`Schedule ${schedule.name} has completed all payments`);
+      return;
+    }
+
+    const totalAmount = schedule.recipients.reduce(
+      (sum, r) => sum + parseFloat(r.amount),
+      0
+    );
+
+    // Check vault balance
+    try {
+      const vaultBalance = await contract.balanceOf(address);
+      const vaultBalanceEth = parseFloat(ethers.formatEther(vaultBalance));
+      
+      if (vaultBalanceEth < totalAmount) {
+        console.warn(`Insufficient vault balance for ${schedule.name}`);
+        return;
+      }
+    } catch (error) {
+      console.error('Error checking balance:', error);
+      return;
+    }
+
+    try {
+      // Execute each payment
+      for (const recipient of schedule.recipients) {
+        const amount = ethers.parseEther(recipient.amount);
+        const ref = ethers.hexlify(ethers.randomBytes(32));
+        
+        const tx = await contract.pay(recipient.wallet, amount, ref);
+        await tx.wait();
+        console.log(`Paid ${recipient.amount} ETH to ${recipient.wallet}`);
+      }
+
+      // Update schedule in Firebase
+      const nextPayment = calculateNextPayment(
+        new Date().toISOString(),
+        schedule.frequency,
+        schedule.customInterval
+      );
+
+      const scheduleRef = ref(database, `payrollSchedules/${address}/${schedule.id}`);
+      await update(scheduleRef, {
+        paymentsCompleted: (schedule.paymentsCompleted || 0) + 1,
+        lastPayment: new Date().toISOString(),
+        nextPayment,
+        updatedAt: Date.now(),
+      });
+
+      console.log(`✅ Auto-executed payroll: ${schedule.name}`);
+      loadSchedules();
+    } catch (error) {
+      console.error('Error in auto-execution:', error);
+      throw error;
+    }
+  }, [contract, address, loadSchedules]);
+
+  // Check for due payments and execute automatically
+  useEffect(() => {
+    if (!contract || !address || schedules.length === 0) return;
+
+    const checkAndExecuteDuePayments = async () => {
+      const now = new Date();
+      
+      for (const schedule of schedules) {
+        // Skip if paused or not approved for auto-execution
+        if (schedule.isPaused || !schedule.autoExecute || !schedule.isApproved) {
+          continue;
+        }
+
+        // Check if payment is due
+        if (schedule.nextPayment) {
+          const nextPaymentDate = new Date(schedule.nextPayment);
+          
+          // If next payment time has passed, execute it
+          if (now >= nextPaymentDate) {
+            console.log(`Auto-executing payroll: ${schedule.name}`);
+            try {
+              await executePayrollSilently(schedule);
+            } catch (error) {
+              console.error(`Failed to auto-execute payroll ${schedule.name}:`, error);
+            }
+          }
+        }
+      }
+    };
+
+    // Check every minute for due payments
+    const interval = setInterval(checkAndExecuteDuePayments, 60000);
+    
+    // Also check immediately on mount/update
+    checkAndExecuteDuePayments();
+
+    return () => clearInterval(interval);
+  }, [contract, address, schedules, executePayrollSilently]);
+
+  // Add recipient to new schedule
+  const addRecipient = () => {
+    setNewSchedule({
+      ...newSchedule,
+      recipients: [...newSchedule.recipients, { wallet: '', amount: '', name: '' }]
+    });
+  };
+
+  // Remove recipient from new schedule
+  const removeRecipient = (index) => {
+    const recipients = newSchedule.recipients.filter((_, i) => i !== index);
+    setNewSchedule({ ...newSchedule, recipients });
+  };
+
+  // Update recipient data
+  const updateRecipient = (index, field, value) => {
+    const recipients = [...newSchedule.recipients];
+    recipients[index][field] = value;
+    setNewSchedule({ ...newSchedule, recipients });
+  };
+
   // Calculate total payments needed
   const calculateTotalPayments = (startDate, endDate, frequency, customInterval, duration) => {
     if (duration) return parseInt(duration);
@@ -165,6 +277,17 @@ const ScheduledPayroll = ({ contract, address }) => {
 
   // Create new schedule
   const handleCreateSchedule = async () => {
+    // Check if wallet is connected and contract is available
+    if (!address) {
+      alert('Please connect your wallet first');
+      return;
+    }
+
+    if (!contract) {
+      alert('Waiting for contract to initialize. Please try again in a moment.');
+      return;
+    }
+
     // Validation
     if (!newSchedule.name.trim()) {
       alert('Please enter a schedule name');
@@ -174,6 +297,17 @@ const ScheduledPayroll = ({ contract, address }) => {
     if (!newSchedule.startDate) {
       alert('Please select a start date');
       return;
+    }
+
+    // Validate end date is after start date
+    if (newSchedule.endDate) {
+      const startDate = new Date(newSchedule.startDate);
+      const endDate = new Date(newSchedule.endDate);
+      
+      if (endDate <= startDate) {
+        alert('End date must be after start date');
+        return;
+      }
     }
 
     if (newSchedule.recipients.length === 0) {
@@ -303,10 +437,47 @@ const ScheduledPayroll = ({ contract, address }) => {
       return;
     }
 
+    // Check if schedule has ended
+    if (schedule.endDate) {
+      const endDate = new Date(schedule.endDate);
+      const now = new Date();
+      
+      if (now > endDate) {
+        alert('This schedule has ended. The end date has passed.');
+        return;
+      }
+    }
+
+    // Check if payment limit reached
+    if (schedule.duration && schedule.paymentsCompleted >= parseInt(schedule.duration)) {
+      alert(`This schedule has completed all ${schedule.duration} payments.`);
+      return;
+    }
+
     const totalAmount = schedule.recipients.reduce(
       (sum, r) => sum + parseFloat(r.amount),
       0
     );
+
+    // Check vault balance before executing
+    try {
+      const vaultBalance = await contract.balanceOf(address);
+      const vaultBalanceEth = parseFloat(ethers.formatEther(vaultBalance));
+      
+      if (vaultBalanceEth < totalAmount) {
+        alert(
+          `Insufficient vault balance!\n\n` +
+          `Required: ${totalAmount} ETH\n` +
+          `Available: ${vaultBalanceEth.toFixed(4)} ETH\n\n` +
+          `Please deposit more funds to your vault first.`
+        );
+        return;
+      }
+    } catch (error) {
+      console.error('Error checking balance:', error);
+      alert('Failed to check vault balance. Please try again.');
+      return;
+    }
 
     if (!window.confirm(
       `Execute payroll "${schedule.name}"?\n\n` +
@@ -346,7 +517,20 @@ const ScheduledPayroll = ({ contract, address }) => {
       loadSchedules();
     } catch (error) {
       console.error('Error executing payroll:', error);
-      alert('Failed to execute payroll: ' + error.message);
+      
+      let errorMessage = 'Failed to execute payroll: ';
+      
+      if (error.message?.includes('insufficient funds') || error.code === 'INSUFFICIENT_FUNDS') {
+        errorMessage += 'Insufficient funds in wallet for gas fees.';
+      } else if (error.message?.includes('execution reverted')) {
+        errorMessage += 'Transaction reverted. This may be due to insufficient vault balance or invalid recipient address.';
+      } else if (error.message?.includes('user rejected')) {
+        errorMessage = 'Transaction cancelled by user.';
+      } else {
+        errorMessage += error.message || 'Unknown error occurred.';
+      }
+      
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }

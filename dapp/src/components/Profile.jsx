@@ -183,8 +183,12 @@ const Profile = () => {
                 {profileData.name || efpData.name || ensData.name || `${address?.slice(0, 6)}...${address?.slice(-4)}`}
               </h1>
               
+              {ensData.name && (
+                <div className="profile-ens-name">{ensData.name}</div>
+              )}
+              
               <div className="profile-address">
-                {address?.slice(0, 10)}...{address?.slice(-8)}
+                {address}
                 <button
                   className="copy-btn"
                   onClick={() => {
