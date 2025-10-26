@@ -256,20 +256,46 @@ Contributions are welcome! Please read our contributing guidelines before submit
   - Smart contract testing and deployment
   - Security auditing and optimization
 
-### Development Approach
+### 🤖 Development Transparency & AI Attribution
 
-This project represents a hybrid development approach:
-- **~70% Human-Written Code** - Core architecture, UI/UX, smart contracts, and critical business logic
-- **~30% AI-Assisted** - Used for:
-  - Complex integration research (Lit Protocol, Blockscout, WalletConnect)
-  - Debugging and error resolution
-  - Code optimization and refactoring
-  - Documentation generation
+**Code Authorship Overview:**
 
-**Tools Used:**
-- ChatGPT - Technical research and complex problem solving
-- GitHub Copilot - Code completion, debugging assistance, and refactoring
-- Human Review - All AI-generated code reviewed and refined by developers
+This project represents a **collaborative development approach** combining human expertise with AI assistance:
+
+| Component | Primary Author | AI Support |
+|-----------|----------------|------------|
+| **Smart Contracts** | Human-written | Minimal assistance |
+| **UI Components** | Human-designed & coded | Moderate assistance |
+| **Core Business Logic** | Human-architected | Limited assistance |
+| **Integration Code** | Balanced collaboration | Significant assistance |
+| **Testing & Debugging** | Human-led | Moderate assistance |
+| **Documentation** | Collaborative effort | Substantial assistance |
+
+**Human-Led Development:**
+- ✅ Complete system architecture & technical decisions
+- ✅ All smart contract security patterns & implementations
+- ✅ Full UI/UX design & user experience flow
+- ✅ Database schema design & structure
+- ✅ Business logic & feature specifications
+- ✅ Security audit & vulnerability assessment
+
+**AI Tools Used as Development Assistants:**
+- **ChatGPT** - Technical research, debugging assistance, documentation drafting
+- **GitHub Copilot** - Code completion, boilerplate generation, syntax suggestions
+- **Human Review & Refinement** - All AI suggestions reviewed, tested, and often significantly modified
+
+**Quality Assurance:**
+- Every line of code manually reviewed and tested by human developers
+- AI suggestions evaluated for security, performance, and best practices
+- Approximately half of AI suggestions were rejected or completely rewritten
+- All critical systems (smart contracts, security, core logic) are human-authored
+
+**Learn More:**
+- [**Development Attribution Guide**](docs/DEVELOPMENT_ATTRIBUTION.md) - Detailed contribution breakdown
+- [**Technical Documentation**](docs/TECHNICAL_DOCUMENTATION.md) - Architecture and implementation
+- [**User Guide**](docs/USER_GUIDE.md) - Complete usage documentation
+
+**Our Commitment:** We believe in transparent disclosure of development tools and methods. This project demonstrates how modern AI assistants can enhance developer productivity while maintaining human control over architecture, security, and critical decision-making.
 
 ## 📄 License
 
