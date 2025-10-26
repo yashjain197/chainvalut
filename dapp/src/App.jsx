@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, NavLink, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, NavLink, useLocation, Link } from 'react-router-dom';
 import { useEnhancedWeb3 } from './hooks/useEnhancedWeb3';
 import { useENS } from './hooks/useENS';
 import EnhancedWalletConnect from './components/EnhancedWalletConnect';
@@ -42,20 +42,10 @@ function App() {
         )}
         
         <header className="app-header">
-          <div className="logo">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-              <rect width="32" height="32" rx="8" fill="url(#gradient)" />
-              <path d="M16 8L9 13L16 17L23 13L16 8Z" fill="white" opacity="0.9"/>
-              <path d="M9 15L16 20L23 15L16 24L9 15Z" fill="white" opacity="0.7"/>
-              <defs>
-                <linearGradient id="gradient" x1="0" y1="0" x2="32" y2="32">
-                  <stop offset="0%" stopColor="#1A73E8" />
-                  <stop offset="100%" stopColor="#00E0FF" />
-                </linearGradient>
-              </defs>
-            </svg>
+          <Link to="/" className="logo">
+            <img src="/ChainVaultLogo.png" alt="ChainVault Logo" className="logo-image" />
             <h1>ChainVault</h1>
-          </div>
+          </Link>
 
           {isConnected && (
             <nav className="main-nav">

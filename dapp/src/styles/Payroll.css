@@ -65,16 +65,16 @@
 
 .payroll-content {
   display: grid;
-  grid-template-columns: 1fr 440px;
-  gap: 2.5rem;
+  grid-template-columns: 1fr 420px;
+  gap: 2rem;
   align-items: start;
   overflow-x: hidden;
 }
 
 @media (max-width: 1400px) {
   .payroll-content {
-    grid-template-columns: 1fr 400px;
-    gap: 2rem;
+    grid-template-columns: 1fr 380px;
+    gap: 1.5rem;
   }
 }
 
@@ -82,6 +82,15 @@
   .payroll-content {
     grid-template-columns: 1fr;
     gap: 2rem;
+  }
+  
+  /* On smaller screens, payment summary comes after recipients */
+  .payment-summary {
+    order: 2;
+  }
+  
+  .recipients-section {
+    order: 1;
   }
 }
 
@@ -397,14 +406,14 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 20px;
   padding: 2rem;
-  position: sticky;
-  top: 2rem;
   width: 100%;
   box-sizing: border-box;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .summary-card h3 {
@@ -489,6 +498,8 @@
   box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
   position: relative;
   overflow: hidden;
+  z-index: 10;
+  flex-shrink: 0;
 }
 
 .execute-payment-btn::before {
@@ -743,6 +754,8 @@
 
   .summary-card {
     padding: 1.5rem 1.25rem;
+    position: relative;
+    top: 0;
   }
 
   .save-batch-section {
@@ -757,6 +770,13 @@
   .save-batch-btn {
     padding: 0.9rem 1rem;
     font-size: 0.9rem;
+  }
+
+  .execute-payment-btn {
+    position: relative;
+    z-index: 10;
+    margin-top: 1rem;
+    flex-shrink: 0;
   }
 }
 
@@ -779,6 +799,8 @@
 
   .summary-card {
     padding: 1.25rem 1rem;
+    position: relative;
+    top: 0;
   }
 
   .section-header h3 {
@@ -793,6 +815,9 @@
   .execute-payment-btn {
     padding: 1rem 0.85rem;
     font-size: 0.9rem;
+    position: relative;
+    z-index: 10;
+    flex-shrink: 0;
   }
 
   .saved-batch-card {

@@ -78,6 +78,31 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0.5rem 0.75rem;
+  border-radius: 12px;
+}
+
+.logo:hover {
+  background: rgba(26, 115, 232, 0.1);
+  transform: translateY(-2px);
+}
+
+.logo:active {
+  transform: translateY(0);
+}
+
+.logo-image {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.logo:hover .logo-image {
+  transform: scale(1.05);
 }
 
 .logo h1 {
@@ -87,6 +112,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  margin: 0;
 }
 
 .error-banner {

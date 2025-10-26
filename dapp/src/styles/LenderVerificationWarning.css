@@ -1,0 +1,272 @@
+.lender-warning-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 1rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.lender-warning-modal {
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 152, 0, 0.05) 100%);
+  border: 2px solid rgba(255, 193, 7, 0.3);
+  border-radius: 20px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(255, 193, 7, 0.2);
+}
+
+.warning-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid rgba(255, 193, 7, 0.2);
+  background: rgba(255, 193, 7, 0.05);
+}
+
+.warning-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+  animation: pulse-warning 2s ease-in-out infinite;
+}
+
+@keyframes pulse-warning {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.warning-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #FFC107;
+}
+
+.warning-body {
+  padding: 2rem;
+}
+
+.warning-intro {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 1.5rem 0;
+}
+
+.warning-intro strong {
+  color: #FFC107;
+  font-weight: 700;
+}
+
+.verification-checklist,
+.risk-disclaimer {
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+}
+
+.verification-checklist h4,
+.risk-disclaimer h4 {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.verification-checklist ul,
+.risk-disclaimer ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.verification-checklist li,
+.risk-disclaimer li {
+  padding: 0.5rem 0;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.verification-checklist li::before {
+  content: '✓';
+  color: #4CAF50;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.risk-disclaimer li {
+  border-left: 3px solid rgba(255, 193, 7, 0.5);
+  padding-left: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.risk-disclaimer li strong {
+  color: #FF5722;
+}
+
+.acknowledgment-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 12px;
+  cursor: pointer;
+  margin-top: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.acknowledgment-checkbox:hover {
+  background: rgba(255, 193, 7, 0.15);
+  border-color: rgba(255, 193, 7, 0.5);
+}
+
+.acknowledgment-checkbox input[type="checkbox"] {
+  margin-top: 0.25rem;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+  accent-color: #FFC107;
+}
+
+.acknowledgment-checkbox span {
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.warning-footer {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+  border-top: 1px solid rgba(255, 193, 7, 0.2);
+  background: rgba(255, 193, 7, 0.05);
+}
+
+.warning-footer button {
+  flex: 1;
+  padding: 0.875rem 1.5rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-btn {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.proceed-btn {
+  background: linear-gradient(135deg, #FFC107, #FF9800);
+  color: #000;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+}
+
+.proceed-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #FFD54F, #FFB74D);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
+}
+
+.proceed-btn:disabled {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.3);
+  cursor: not-allowed;
+  box-shadow: none;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .lender-warning-modal {
+    max-width: 100%;
+    margin: 1rem;
+    border-radius: 16px;
+  }
+
+  .warning-header {
+    padding: 1.25rem 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .warning-icon {
+    font-size: 2rem;
+  }
+
+  .warning-header h3 {
+    font-size: 1.25rem;
+  }
+
+  .warning-body {
+    padding: 1.5rem;
+  }
+
+  .warning-intro {
+    font-size: 1rem;
+  }
+
+  .verification-checklist,
+  .risk-disclaimer {
+    padding: 1rem;
+  }
+
+  .acknowledgment-checkbox {
+    padding: 1rem;
+    gap: 0.5rem;
+  }
+
+  .acknowledgment-checkbox span {
+    font-size: 0.9rem;
+  }
+
+  .warning-footer {
+    padding: 1.25rem 1.5rem;
+    flex-direction: column;
+  }
+
+  .warning-footer button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .warning-header h3 {
+    font-size: 1.1rem;
+  }
+
+  .verification-checklist li,
+  .risk-disclaimer li {
+    font-size: 0.9rem;
+  }
+}
