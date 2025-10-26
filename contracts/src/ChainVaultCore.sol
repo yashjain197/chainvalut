@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-// Minimal Chainlink Aggregator interface
+// ===== Minimal Chainlink Aggregator interface =====
 interface AggregatorV3Interface {
     function decimals() external view returns (uint8);
     function latestRoundData()
@@ -12,6 +12,7 @@ interface AggregatorV3Interface {
         );
 }
 
+// ===== Reentrancy Guard =====
 abstract contract ReentrancyGuard {
     uint256 private constant _NOT_ENTERED = 1;
     uint256 private constant _ENTERED = 2;
@@ -53,7 +54,7 @@ contract ChainVaultCore is ReentrancyGuard {
     event Unpaused(address indexed by);
 
     // ===== Accounting =====
-    mapping(address => uint256) private _balance;
+    mapping(address => uint256) internal _balance;
     uint256 public totalLiabilities;
 
     function balanceOf(address user) external view returns (uint256) {
@@ -87,7 +88,6 @@ contract ChainVaultCore is ReentrancyGuard {
 
     // ===== Activity & Audit =====
     enum Action { None, Deposit, Withdraw, Payment }
-
     struct TxRecord {
         uint64 timestamp;
         address from;
@@ -125,7 +125,7 @@ contract ChainVaultCore is ReentrancyGuard {
     }
 
     // ===== Core: deposit / withdraw / pay =====
-    function deposit(bytes32 ref) external payable whenNotPaused nonReentrant {
+    function deposit(bytes32 ref) external payable virtual whenNotPaused nonReentrant {
         if (msg.value == 0) revert ZeroAmount();
         _balance[msg.sender] += msg.value;
         totalLiabilities += msg.value;
@@ -144,6 +144,7 @@ contract ChainVaultCore is ReentrancyGuard {
 
     function withdraw(uint256 amount, address payable to, bytes32 ref)
         external
+        virtual
         whenNotPaused
         nonReentrant
     {
@@ -173,6 +174,7 @@ contract ChainVaultCore is ReentrancyGuard {
 
     function pay(address payable to, uint256 amount, bytes32 ref)
         external
+        virtual
         whenNotPaused
         nonReentrant
     {
@@ -200,7 +202,7 @@ contract ChainVaultCore is ReentrancyGuard {
         }));
     }
 
-    function withdrawAll(bytes32 ref) external whenNotPaused nonReentrant {
+    function withdrawAll(bytes32 ref) external virtual whenNotPaused nonReentrant {
         uint256 amount = _balance[msg.sender];
         if (amount == 0) revert ZeroAmount();
 
@@ -255,4 +257,88 @@ contract ChainVaultCore is ReentrancyGuard {
 
     receive() external payable { revert("Use deposit()"); }
     fallback() external payable { revert("Use deposit()"); }
+
+    // ===== Payroll Feature =====
+
+    struct PayrollRecipient {
+        address wallet;
+        uint256 amount;
+        string name; // Optional. Can be empty string if not used
+    }
+
+    PayrollRecipient[] private _payrollRecipients;
+    mapping(address => uint256) private _payrollIndex; // 1-based, 0=not present
+
+    event PayrollRecipientAdded(address indexed wallet, uint256 amount, string name);
+    event PayrollRecipientRemoved(address indexed wallet);
+    event PayrollPaid(address indexed admin, uint256 count, uint256 totalAmount);
+
+    function payrollRecipientCount() public view returns (uint256) {
+        return _payrollRecipients.length;
+    }
+
+    function getPayrollRecipients() public view returns (PayrollRecipient[] memory) {
+        return _payrollRecipients;
+    }
+
+    function addPayrollRecipient(address wallet, uint256 amount, string calldata name) public onlyOwner {
+        if (wallet == address(0)) revert InvalidAddress();
+        if (amount == 0) revert ZeroAmount();
+        if (_payrollIndex[wallet] != 0) revert("Already added");
+        _payrollRecipients.push(PayrollRecipient(wallet, amount, name));
+        _payrollIndex[wallet] = _payrollRecipients.length; // 1-based index
+        emit PayrollRecipientAdded(wallet, amount, name);
+    }
+
+    function addPayrollRecipients(address[] calldata wallets, uint256[] calldata amounts, string[] calldata names) public onlyOwner {
+        require(wallets.length == amounts.length && amounts.length == names.length, "Length mismatch");
+        for (uint256 i = 0; i < wallets.length; i++) {
+            addPayrollRecipient(wallets[i], amounts[i], names[i]);
+        }
+    }
+
+    function removePayrollRecipient(address wallet) public onlyOwner {
+        uint256 idx = _payrollIndex[wallet];
+        if (idx == 0) revert("Not present");
+        uint256 arrIdx = idx - 1;
+        uint256 lastIdx = _payrollRecipients.length - 1;
+        if (arrIdx != lastIdx) {
+            PayrollRecipient memory lastR = _payrollRecipients[lastIdx];
+            _payrollRecipients[arrIdx] = lastR;
+            _payrollIndex[lastR.wallet] = arrIdx + 1;
+        }
+        _payrollRecipients.pop();
+        _payrollIndex[wallet] = 0;
+        emit PayrollRecipientRemoved(wallet);
+    }
+
+    function payAllPayroll(bytes32 ref) external whenNotPaused nonReentrant onlyOwner {
+        uint256 total = 0;
+        uint256 count = _payrollRecipients.length;
+        for (uint256 i = 0; i < count; i++) {
+            total += _payrollRecipients[i].amount;
+        }
+        uint256 bal = _balance[msg.sender];
+        if (bal < total) revert InsufficientBalance(bal, total);
+
+        for (uint256 i = 0; i < count; i++) {
+            PayrollRecipient memory rec = _payrollRecipients[i];
+            _balance[msg.sender] -= rec.amount;
+            totalLiabilities -= rec.amount;
+            (bool ok, ) = payable(rec.wallet).call{value: rec.amount}("");
+            if (!ok) revert TransferFailed();
+            emit Paid(msg.sender, rec.wallet, rec.amount, _balance[msg.sender], ref);
+
+            _pushHistory(msg.sender, TxRecord({
+                timestamp: uint64(block.timestamp),
+                from: msg.sender,
+                to: rec.wallet,
+                action: Action.Payment,
+                amount: rec.amount,
+                balanceAfter: _balance[msg.sender],
+                ref: ref
+            }));
+        }
+        emit PayrollPaid(msg.sender, count, total);
+    }
 }

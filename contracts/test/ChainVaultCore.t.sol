@@ -369,7 +369,7 @@ contract ChainVaultCoreTest is Test {
 
     // ============ Invariant: solvency ============
 
-    function invariant_VaultSolvent() public {
+    function invariant_VaultSolvent() public view {
         // Contract ETH must always equal totalLiabilities
         assertEq(address(vault).balance, vault.totalLiabilities());
     }
@@ -379,4 +379,167 @@ contract ChainVaultCoreTest is Test {
     event Deposited(address indexed user, uint256 amount, uint256 balanceAfter, bytes32 ref);
     event Withdrawn(address indexed user, address indexed to, uint256 amount, uint256 balanceAfter, bytes32 ref);
     event Paid(address indexed from, address indexed to, uint256 amount, uint256 balanceAfter, bytes32 ref);
+
+
+     function testPayroll_AddSingleRecipient() public {
+        vm.prank(owner);
+        vault.addPayrollRecipient(bob, 1 ether, "Bob");
+        ChainVaultCore.PayrollRecipient[] memory recs = vault.getPayrollRecipients();
+        assertEq(recs.length, 1);
+        assertEq(recs[0].wallet, bob);
+        assertEq(recs[0].amount, 1 ether);
+        assertEq(recs[0].name, "Bob");
+    }
+
+    function testPayroll_AddMultipleRecipients() public {
+        address[] memory wallets = new address[](2);
+        wallets[0] = bob;
+        wallets[1] = eve;
+        uint256[] memory amounts = new uint256[](2);
+        amounts[0] = 1 ether;
+        amounts[1] = 2 ether;
+        string[] memory names = new string[](2);
+        names[0] = "Bob";
+        names[1] = "Eve";
+        vm.prank(owner);
+        vault.addPayrollRecipients(wallets, amounts, names);
+
+        ChainVaultCore.PayrollRecipient[] memory recs = vault.getPayrollRecipients();
+        assertEq(recs.length, 2);
+        assertEq(recs[0].wallet, bob);
+        assertEq(recs[0].amount, 1 ether);
+        assertEq(recs[0].name, "Bob");
+        assertEq(recs[1].wallet, eve);
+        assertEq(recs[1].amount, 2 ether);
+        assertEq(recs[1].name, "Eve");
+    }
+
+    function testPayroll_RemoveRecipient() public {
+        vm.prank(owner);
+        vault.addPayrollRecipient(bob, 2 ether, "Bob");
+        vm.prank(owner);
+        vault.removePayrollRecipient(bob);
+
+        ChainVaultCore.PayrollRecipient[] memory recs = vault.getPayrollRecipients();
+        assertEq(recs.length, 0, "Recipient was not removed");
+    }
+
+    function testPayroll_CannotAddDuplicateRecipient() public {
+        vm.prank(owner);
+        vault.addPayrollRecipient(bob, 1 ether, "Bob");
+        vm.prank(owner);
+        vm.expectRevert("Already added");
+        vault.addPayrollRecipient(bob, 2 ether, "Bob Again");
+    }
+
+    function testPayroll_CannotRemoveNonexistentRecipient() public {
+        vm.prank(owner);
+        vm.expectRevert("Not present");
+        vault.removePayrollRecipient(alice);
+    }
+
+    function testPayroll_CannotAddZeroAmount() public {
+        vm.prank(owner);
+        vm.expectRevert(ChainVaultCore.ZeroAmount.selector);
+        vault.addPayrollRecipient(bob, 0, "Zero");
+    }
+
+    function testPayroll_CannotAddZeroAddress() public {
+        vm.prank(owner);
+        vm.expectRevert(ChainVaultCore.InvalidAddress.selector);
+        vault.addPayrollRecipient(address(0), 1 ether, "ZeroAddr");
+    }
+
+    function testPayroll_PayAll_SucceedsAndUpdatesHistory() public {
+        address[] memory wallets = new address[](2);
+        wallets[0] = bob;
+        wallets[1] = eve;
+        uint256[] memory amounts = new uint256[](2);
+        amounts[0] = 1 ether;
+        amounts[1] = 2 ether;
+        string[] memory names = new string[](2);
+        names[0] = "Bob";
+        names[1] = "Eve";
+        vm.prank(owner);
+        vault.addPayrollRecipients(wallets, amounts, names);
+
+        deal(owner, 5 ether);
+        vm.prank(owner);
+        vault.deposit{value: 5 ether}(bytes32("payroll-dep"));
+
+        uint256 bobBefore = bob.balance;
+        uint256 eveBefore = eve.balance;
+
+        bytes32 ref = keccak256("payroll-batch");
+
+        vm.prank(owner);
+        vm.expectEmit(true, true, true, true, address(vault));
+        emit ChainVaultCore.PayrollPaid(owner, 2, 3 ether);
+
+        vault.payAllPayroll(ref);
+
+        assertEq(vault.balanceOf(owner), 2 ether, "Admin balance should decrease by total payroll");
+        assertEq(bob.balance, bobBefore + 1 ether, "Bob balance updated");
+        assertEq(eve.balance, eveBefore + 2 ether, "Eve balance updated");
+
+        // History should be updated
+        ChainVaultCore.TxRecord[] memory hist = vault.recentHistory(owner);
+        bool foundBob = false;
+        bool foundEve = false;
+        for (uint256 i = 0; i < hist.length; i++) {
+            if (hist[i].to == bob && hist[i].action == ChainVaultCore.Action.Payment && hist[i].amount == 1 ether) {
+                foundBob = true;
+            }
+            if (hist[i].to == eve && hist[i].action == ChainVaultCore.Action.Payment && hist[i].amount == 2 ether) {
+                foundEve = true;
+            }
+        }
+        assertTrue(foundBob, "Bob payment not found in history");
+        assertTrue(foundEve, "Eve payment not found in history");
+    }
+
+        function testPayroll_PayAll_RevertsIfInsufficientBalance() public {
+        address[] memory wallets = new address[](2);
+        wallets[0] = bob;
+        wallets[1] = eve;
+        uint256[] memory amounts = new uint256[](2);
+        amounts[0] = 1 ether;
+        amounts[1] = 2 ether;
+        string[] memory names = new string[](2);
+        names[0] = "Bob";
+        names[1] = "Eve";
+        vm.prank(owner);
+        vault.addPayrollRecipients(wallets, amounts, names);
+
+        // Only deposit less than required
+        deal(owner, 2 ether);
+        vm.prank(owner);
+        vault.deposit{value: 2 ether}(bytes32("payroll-dep"));
+
+        bytes32 ref = keccak256("payroll-batch");
+        uint256 required = 3 ether;
+        uint256 available = 2 ether;
+
+        vm.prank(owner);
+        vm.expectRevert(abi.encodeWithSelector(
+            ChainVaultCore.InsufficientBalance.selector, available, required
+        ));
+        vault.payAllPayroll(ref);
+    }
+
+
+    function testPayroll_PayAll_EmptyListDoesNothing() public {
+        bytes32 ref = keccak256("no-payroll");
+        vm.prank(owner);
+        vault.payAllPayroll(ref);
+        // Should not revert, just nothing happens
+        assertEq(vault.balanceOf(owner), 0);
+    }
+
+    function testPayroll_NamesAreOptional() public {
+        vm.prank(owner);
+        vault.addPayrollRecipient(bob, 2 ether, "");
+        ChainVaultCore.PayrollRecipient[] memory recs = vault.getPayrollRecipients();
+        assertEq(recs[0].name, "");
+    }
 }
