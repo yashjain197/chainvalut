@@ -69,10 +69,7 @@
     "payrollBatches": {
       "$userAddress": {
         ".read": true,
-        ".write": true,
-        "$batchId": {
-          ".validate": "newData.hasChildren(['name', 'recipients', 'totalAmount', 'createdAt', 'recipientCount']) || !newData.exists()"
-        }
+        ".write": true
       }
     }
   }
