@@ -1,18 +1,19 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, NavLink, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, NavLink, useLocation, Link } from 'react-router-dom';
 import { useEnhancedWeb3 } from './hooks/useEnhancedWeb3';
 import { useENS } from './hooks/useENS';
 import EnhancedWalletConnect from './components/EnhancedWalletConnect';
 import UserAvatar from './components/UserAvatar';
 import BalanceCard from './components/BalanceCard';
 import ActionPanel from './components/ActionPanel';
-import TransactionHistory from './components/TransactionHistory';
+import BlockscoutWidget from './components/BlockscoutWidget';
 import LendingMarketplace from './components/LendingMarketplace';
 import Chat from './components/Chat';
 import Profile from './components/Profile';
 import Payment from './components/Payment';
 import UserProfile from './components/UserProfile';
 import LoanStats from './components/LoanStats';
+import Payroll from './components/Payroll';
 import { LoanNotification } from './components/LoanNotification';
 import { LoanFundedNotification } from './components/LoanFundedNotification';
 import './App.css';
@@ -41,20 +42,10 @@ function App() {
         )}
         
         <header className="app-header">
-          <div className="logo">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-              <rect width="32" height="32" rx="8" fill="url(#gradient)" />
-              <path d="M16 8L9 13L16 17L23 13L16 8Z" fill="white" opacity="0.9"/>
-              <path d="M9 15L16 20L23 15L16 24L9 15Z" fill="white" opacity="0.7"/>
-              <defs>
-                <linearGradient id="gradient" x1="0" y1="0" x2="32" y2="32">
-                  <stop offset="0%" stopColor="#1A73E8" />
-                  <stop offset="100%" stopColor="#00E0FF" />
-                </linearGradient>
-              </defs>
-            </svg>
+          <Link to="/" className="logo">
+            <img src="/ChainVaultLogo.png" alt="ChainVault Logo" className="logo-image" />
             <h1>ChainVault</h1>
-          </div>
+          </Link>
 
           {isConnected && (
             <nav className="main-nav">
@@ -87,6 +78,14 @@ function App() {
                 </svg>
                 <span>Profile</span>
               </NavLink>
+
+              <NavLink to="/payroll" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <rect x="3" y="4" width="14" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M3 8h14M7 2v4m6-4v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span>Payroll</span>
+              </NavLink>
             </nav>
           )}
 
@@ -115,6 +114,9 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/profile/:address" element={<UserProfile />} />
             <Route path="/payment/:borrowId?" element={<Payment />} />
+            <Route path="/payroll" element={
+              <Payroll contract={contract} address={address} />
+            } />
           </Routes>
         </main>
 
@@ -275,10 +277,8 @@ const DashboardPage = ({ ensData, address, contract, balance, ethBalance, update
         </div>
 
         <div className="grid-item history-section">
-          <TransactionHistory
-            contract={contract}
-            account={address}
-          />
+          {/* Blockscout Blockchain Activity */}
+          <BlockscoutWidget address={address} />
         </div>
       </div>
     </div>

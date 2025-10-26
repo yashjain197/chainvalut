@@ -10,6 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@lit-protocol/auth-helpers": "^8.1.0",
+    "@lit-protocol/constants": "^8.0.4",
+    "@lit-protocol/lit-node-client": "^7.3.1",
+    "@lit-protocol/types": "^8.0.2",
     "@rainbow-me/rainbowkit": "^2.2.9",
     "@tanstack/react-query": "^5.90.5",
     "date-fns": "^4.1.0",

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
+import TransactionDetailsModal from './TransactionDetailsModal';
 import '../styles/TransactionHistory.css';
 
 const TransactionHistory = ({ contract, account }) => {

@@ -6,6 +6,7 @@ import { database } from '../config/firebase';
 import { ref as dbRef, push, set, update } from 'firebase/database';
 import { useENS } from '../hooks/useENS';
 import UserAvatar from './UserAvatar';
+import LenderVerificationWarning from './LenderVerificationWarning';
 import '../styles/InlineFundingModal.css';
 
 const InlineFundingModal = ({ request, conversationId, onClose, onFundingComplete }) => {
@@ -13,6 +14,7 @@ const InlineFundingModal = ({ request, conversationId, onClose, onFundingComplet
   const [txHash, setTxHash] = useState('');
   const [error, setError] = useState('');
   const [vaultBalance, setVaultBalance] = useState('0');
+  const [showVerificationWarning, setShowVerificationWarning] = useState(false);
   const { address } = useAccount();
   const { contract } = useEnhancedWeb3();
   const ensData = useENS(request.borrowerAddress);
@@ -31,6 +33,22 @@ const InlineFundingModal = ({ request, conversationId, onClose, onFundingComplet
     };
     fetchBalance();
   }, [contract, address]);
+
+  const handleFundClick = () => {
+    // Show verification warning first
+    setShowVerificationWarning(true);
+  };
+
+  const handleVerificationAcknowledged = () => {
+    // User acknowledged the warning, proceed with funding
+    setShowVerificationWarning(false);
+    handleFund();
+  };
+
+  const handleVerificationCancelled = () => {
+    // User cancelled, close the warning
+    setShowVerificationWarning(false);
+  };
 
   const handleFund = async () => {
     if (!contract || !address) {
@@ -255,7 +273,7 @@ const InlineFundingModal = ({ request, conversationId, onClose, onFundingComplet
               <button className="cancel-btn" onClick={onClose}>
                 Cancel
               </button>
-              <button className="fund-btn" onClick={handleFund}>
+              <button className="fund-btn" onClick={handleFundClick}>
                 💸 Fund {request.amount} ETH
               </button>
             </div>
@@ -271,6 +289,16 @@ const InlineFundingModal = ({ request, conversationId, onClose, onFundingComplet
           </p>
         </div>
       </div>
+
+      {/* Lender Verification Warning */}
+      {showVerificationWarning && (
+        <LenderVerificationWarning
+          borrower={displayName}
+          amount={request.amount}
+          onAcknowledge={handleVerificationAcknowledged}
+          onCancel={handleVerificationCancelled}
+        />
+      )}
     </div>
   );
 };

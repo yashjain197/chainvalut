@@ -67,6 +67,62 @@ input[type="number"] {
   appearance: textfield;
 }
 
+/* Global Select and Option Styling */
+select {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.75rem;
+  color: #E8EAED;
+  font-size: 1rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+select:focus {
+  outline: none;
+  border-color: #1A73E8;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+}
+
+select option {
+  background: #1a1a2e;
+  color: #E8EAED;
+  padding: 0.75rem;
+  font-weight: 500;
+}
+
+/* Input Styling */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+textarea {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.75rem;
+  color: #E8EAED;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: all 0.3s ease;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: #1A73E8;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #9AA0A6;
+}
+
 /* Scrollbar Styling */
 ::-webkit-scrollbar {
   width: 8px;

@@ -78,6 +78,31 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0.5rem 0.75rem;
+  border-radius: 12px;
+}
+
+.logo:hover {
+  background: rgba(26, 115, 232, 0.1);
+  transform: translateY(-2px);
+}
+
+.logo:active {
+  transform: translateY(0);
+}
+
+.logo-image {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.logo:hover .logo-image {
+  transform: scale(1.05);
 }
 
 .logo h1 {
@@ -87,6 +112,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  margin: 0;
 }
 
 .error-banner {
@@ -118,6 +144,15 @@
   align-items: flex-start;
   justify-content: center;
   overflow-y: auto;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.app-main > * {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .welcome-section {
@@ -301,8 +336,8 @@
   grid-template-columns: repeat(12, 1fr);
   gap: 1.5rem;
   animation: fadeInUp 0.5s ease;
-  height: calc(100vh - 280px);
-  min-height: 600px;
+  height: auto;
+  min-height: auto;
 }
 
 @keyframes fadeInUp {
@@ -321,30 +356,34 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
   padding: 0;
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   flex-direction: column;
 }
 
 .balance-section {
   grid-column: 1 / 13;
-  max-height: 180px;
+  height: auto;
 }
 
 .actions-section {
   grid-column: 1 / 5;
-  grid-row: 2 / 4;
+  grid-row: 2 / 3;
+  height: auto;
 }
 
 .loan-stats-section {
   grid-column: 5 / 9;
-  grid-row: 2 / 4;
+  grid-row: 2 / 3;
+  height: auto;
   overflow-y: auto;
 }
 
 .history-section {
   grid-column: 9 / 13;
-  grid-row: 2 / 4;
+  grid-row: 2 / 3;
+  height: auto;
+  max-height: 600px;
   overflow-y: auto;
 }
 

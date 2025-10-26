@@ -180,7 +180,7 @@ const LendingMarketplace = () => {
               className="manage-offers-btn"
               onClick={() => setShowMyOffersModal(true)}
             >
-              📋 My Offers ({myOffers.length})
+              My Offers ({myOffers.length})
             </button>
           )}
           {isConnected && (
@@ -475,7 +475,7 @@ const OfferRow = ({ offer, currentUser, isExpanded, onToggleExpand, onBorrow }) 
                 e.stopPropagation();
                 onBorrow();
               }}>
-                💬 Connect to Discuss
+                Connect to Discuss
               </button>
             )}
           </div>

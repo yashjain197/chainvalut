@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
-import { CONTRACT_ABI } from '../config';
+import { CONTRACT_ABI } from '../contracts';
 import { SEPOLIA_NETWORK, switchToSepolia } from '../utils/networks';
 
 export const useWeb3 = () => {

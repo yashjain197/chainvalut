@@ -10,6 +10,8 @@ import TransactionHistory from './components/TransactionHistory';
 import LendingMarketplace from './components/LendingMarketplace';
 import Chat from './components/Chat';
 import Profile from './components/Profile';
+import ScheduledPayroll from './components/ScheduledPayroll';
+import NomineeManagement from './components/NomineeManagement';
 import './App.css';
 
 function App() {
@@ -74,6 +76,23 @@ function App() {
                 </svg>
                 <span>Profile</span>
               </NavLink>
+
+              <NavLink to="/payroll" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <rect x="3" y="4" width="14" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M3 8h14M7 2v4m6-4v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span>Payroll</span>
+              </NavLink>
+
+              <NavLink to="/advanced" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <circle cx="10" cy="10" r="2" stroke="currentColor" strokeWidth="1.5"/>
+                  <path d="M10 1v3m0 12v3M18.66 5l-2.6 1.5M3.94 13.5L1.34 15M18.66 15l-2.6-1.5M3.94 6.5L1.34 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  <circle cx="10" cy="10" r="7" stroke="currentColor" strokeWidth="1.5"/>
+                </svg>
+                <span>Advanced</span>
+              </NavLink>
             </nav>
           )}
 
@@ -97,9 +116,47 @@ function App() {
               )
             } />
             
-            <Route path="/lending" element={<LendingMarketplace />} />
-            <Route path="/chat" element={<Chat />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route path="/lending" element={
+              !isConnected ? (
+                <WelcomePage />
+              ) : (
+                <LendingMarketplace />
+              )
+            } />
+            <Route path="/chat" element={
+              !isConnected ? (
+                <WelcomePage />
+              ) : (
+                <Chat />
+              )
+            } />
+            <Route path="/profile" element={
+              !isConnected ? (
+                <WelcomePage />
+              ) : (
+                <Profile />
+              )
+            } />
+            <Route path="/payroll" element={
+              !isConnected ? (
+                <WelcomePage />
+              ) : (
+                <ScheduledPayrollPage 
+                  contract={contract}
+                  address={address}
+                />
+              )
+            } />
+            <Route path="/advanced" element={
+              !isConnected ? (
+                <WelcomePage />
+              ) : (
+                <AdvancedPage 
+                  contract={contract}
+                  address={address}
+                />
+              )
+            } />
           </Routes>
         </main>
 
@@ -241,6 +298,34 @@ const DashboardPage = ({ ensData, address, contract, balance, ethBalance, update
             account={address}
           />
         </div>
+      </div>
+    </div>
+  );
+};
+
+const ScheduledPayrollPage = ({ contract, address }) => {
+  return (
+    <div className="dashboard">
+      <ScheduledPayroll 
+        contract={contract}
+        address={address}
+      />
+    </div>
+  );
+};
+
+const AdvancedPage = ({ contract, address }) => {
+  return (
+    <div className="dashboard">
+      <div className="advanced-container">
+        <h2>Advanced Features</h2>
+        <p className="section-description">
+          Configure nominee beneficiaries and automated inheritance settings.
+        </p>
+        <NomineeManagement 
+          contract={contract}
+          address={address}
+        />
       </div>
     </div>
   );

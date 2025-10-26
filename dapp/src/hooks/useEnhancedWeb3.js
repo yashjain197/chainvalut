@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAccount, usePublicClient } from 'wagmi';
 import { ethers } from 'ethers';
-import { CONTRACT_ABI, CONTRACT_ADDRESS } from '../config';
+import { CONTRACT_ABI, CONTRACT_ADDRESS } from '../contracts';
 
 export const useEnhancedWeb3 = () => {
   const { address, isConnected, chain } = useAccount();
@@ -121,35 +121,15 @@ export const useEnhancedWeb3 = () => {
       console.log('Triggering initial balance fetch...');
       updateBalances();
       
-      // Also set up a backup polling every 10 seconds
+      // Set up polling every 10 seconds
       const pollInterval = setInterval(() => {
         console.log('Polling balances...');
         updateBalances();
       }, 10000);
-      
-      // Listen for contract events to auto-update balances
-      const depositFilter = contract.filters.Deposited(address);
-      const withdrawFilter = contract.filters.Withdrawn(address);
-      const paidFilter = contract.filters.Paid(address, null);
-      const paidToFilter = contract.filters.Paid(null, address);
 
-      const handleBalanceUpdate = () => {
-        console.log('Contract event detected, updating balances...');
-        updateBalances();
-      };
-
-      contract.on(depositFilter, handleBalanceUpdate);
-      contract.on(withdrawFilter, handleBalanceUpdate);
-      contract.on(paidFilter, handleBalanceUpdate);
-      contract.on(paidToFilter, handleBalanceUpdate);
-
-      // Cleanup listeners on unmount
+      // Cleanup on unmount
       return () => {
         clearInterval(pollInterval);
-        contract.off(depositFilter, handleBalanceUpdate);
-        contract.off(withdrawFilter, handleBalanceUpdate);
-        contract.off(paidFilter, handleBalanceUpdate);
-        contract.off(paidToFilter, handleBalanceUpdate);
       };
     } else {
       console.log('Not ready to fetch balances:', {

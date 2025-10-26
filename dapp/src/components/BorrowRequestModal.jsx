@@ -64,7 +64,7 @@ const BorrowRequestModal = ({ request, onClose, onAccept, onReject }) => {
     <div className="borrow-request-modal-overlay" onClick={onClose}>
       <div className="borrow-request-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>🤝 Borrow Request</h2>
+          <h2>Borrow Request</h2>
           <button className="modal-close" onClick={onClose}>×</button>
         </div>
 
@@ -117,19 +117,19 @@ const BorrowRequestModal = ({ request, onClose, onAccept, onReject }) => {
               onClick={handleReject}
               disabled={isProcessing}
             >
-              {isProcessing ? 'Processing...' : '❌ Reject'}
+              {isProcessing ? 'Processing...' : 'Reject'}
             </button>
             <button
               className="accept-btn"
               onClick={handleAccept}
               disabled={isProcessing}
             >
-              {isProcessing ? 'Processing...' : '✅ Accept & Fund'}
+              {isProcessing ? 'Processing...' : 'Accept & Fund'}
             </button>
           </div>
 
           <p className="modal-note">
-            💡 Accepting will take you to the payment page where you can fund this loan from your vault.
+            Accepting will take you to the payment page where you can fund this loan from your vault.
           </p>
         </div>
       </div>

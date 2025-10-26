@@ -362,7 +362,7 @@ const Chat = () => {
       const borrowRequestMessage = {
         sender: address.toLowerCase(),
         type: 'borrow-request',
-        text: `🙏 Borrow Request: ${borrowForm.amount} ETH - ${borrowForm.reason}`,
+        text: `Borrow Request: ${borrowForm.amount} ETH - ${borrowForm.reason}`,
         amount: borrowForm.amount,
         reason: borrowForm.reason,
         interestRate: borrowForm.interestRate,
@@ -373,7 +373,7 @@ const Chat = () => {
       // If this is from a lending offer, include the offer ID
       if (lendingOfferContext) {
         borrowRequestMessage.offerId = lendingOfferContext.id;
-        borrowRequestMessage.text = `🙏 Borrow Request for your offer: ${borrowForm.amount} ETH at ${borrowForm.interestRate}% for ${borrowForm.duration} days - ${borrowForm.reason}`;
+        borrowRequestMessage.text = `Borrow Request for your offer: ${borrowForm.amount} ETH at ${borrowForm.interestRate}% for ${borrowForm.duration} days - ${borrowForm.reason}`;
       }
 
       await push(messagesRef, borrowRequestMessage);
@@ -417,7 +417,7 @@ const Chat = () => {
       await push(messagesRef, {
         sender: address.toLowerCase(),
         type: 'system',
-        text: `❌ Declined borrow request for ${request.amount} ETH`,
+        text: `Declined borrow request for ${request.amount} ETH`,
         timestamp: Date.now(),
       });
 
@@ -492,15 +492,15 @@ const Chat = () => {
         await push(messagesRef, {
           sender: address.toLowerCase(),
           type: 'system',
-          text: `✅ Loan repaid! ${loan.remainingAmount || loan.totalRepayment} ETH has been sent back to the lender.`,
+          text: `Loan repaid! ${loan.remainingAmount || loan.totalRepayment} ETH has been sent back to the lender.`,
           timestamp: Date.now(),
         });
       }
 
-      alert('Loan repaid successfully! 🎉');
+      alert('Loan repaid successfully!');
       return true;
     } catch (error) {
-      console.error('❌ Error during repayment:', error);
+      console.error('Error during repayment:', error);
       if (error.code === 'ACTION_REJECTED') {
         alert('Transaction was rejected.');
       } else if (error.message?.includes('insufficient funds')) {
@@ -611,42 +611,44 @@ const Chat = () => {
             <div className="chat-header">
               <ConversationHeader address={otherParticipant} />
               
-              {/* Show request loan button only if there's no active borrow with this user */}
-              {!activeBorrow && (
-                <button 
-                  className="request-loan-header-btn"
-                  onClick={() => setShowBorrowModal(true)}
-                  title="Request a loan from this user"
-                >
-                  🙏 Request Loan
-                </button>
-              )}
-              
-              {activeBorrow && activeBorrow.role === 'borrower' && (
-                <button 
-                  className="repay-header-btn"
-                  onClick={() => setActiveLoanToShow({
-                    ...activeBorrow,
-                    amount: activeBorrow.amount || activeBorrow.principalAmount,
-                    totalRepayment: activeBorrow.totalRepayment,
-                    remainingAmount: activeBorrow.remainingAmount || activeBorrow.totalRepayment,
-                    lenderAddress: activeBorrow.lenderAddress,
-                    dueDate: activeBorrow.dueDate,
-                    interestRate: activeBorrow.interestRate,
-                    status: activeBorrow.status
-                  })}
-                  title="View loan details and repayment options"
-                >
-                  💳 Repay {parseFloat(activeBorrow.totalRepayment || 0).toFixed(4)} ETH
-                </button>
-              )}
+              <div className="header-buttons-group">
+                {/* Show request loan button only if there's no active borrow with this user */}
+                {!activeBorrow && (
+                  <button 
+                    className="request-loan-header-btn"
+                    onClick={() => setShowBorrowModal(true)}
+                    title="Request a loan from this user"
+                  >
+                    Request Loan
+                  </button>
+                )}
+                
+                {activeBorrow && activeBorrow.role === 'borrower' && (
+                  <button 
+                    className="repay-header-btn"
+                    onClick={() => setActiveLoanToShow({
+                      ...activeBorrow,
+                      amount: activeBorrow.amount || activeBorrow.principalAmount,
+                      totalRepayment: activeBorrow.totalRepayment,
+                      remainingAmount: activeBorrow.remainingAmount || activeBorrow.totalRepayment,
+                      lenderAddress: activeBorrow.lenderAddress,
+                      dueDate: activeBorrow.dueDate,
+                      interestRate: activeBorrow.interestRate,
+                      status: activeBorrow.status
+                    })}
+                    title="View loan details and repayment options"
+                  >
+                    Repay {parseFloat(activeBorrow.totalRepayment || 0).toFixed(4)} ETH
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Lending Offer Details Banner */}
             {lendingOfferContext && !activeBorrow && (
               <div className="offer-details-banner">
                 <div className="offer-banner-header">
-                  <h4>💼 Lending Offer Details</h4>
+                  <h4>Lending Offer Details</h4>
                   <button 
                     className="close-offer-btn" 
                     onClick={() => setLendingOfferContext(null)}
@@ -679,7 +681,7 @@ const Chat = () => {
                 {/* Show different actions based on user role */}
                 {address.toLowerCase() === lendingOfferContext.lenderAddress?.toLowerCase() ? (
                   <div className="offer-banner-actions">
-                    <p className="offer-banner-note">💡 This is your lending offer. Wait for the borrower to request the loan.</p>
+                    <p className="offer-banner-note">This is your lending offer. Wait for the borrower to request the loan.</p>
                   </div>
                 ) : (
                   <div className="offer-banner-actions">
@@ -695,9 +697,9 @@ const Chat = () => {
                         setShowBorrowModal(true);
                       }}
                     >
-                      📝 Request This Loan
+                      Request This Loan
                     </button>
-                    <p className="offer-banner-note">💬 Chat with the lender first, then request the loan</p>
+                    <p className="offer-banner-note">Chat with the lender first, then request the loan</p>
                   </div>
                 )}
               </div>
@@ -724,11 +726,11 @@ const Chat = () => {
               
               {showDeleteOption && !activeBorrow && (
                 <div className="loan-completed-notice">
-                  <div className="completed-icon">✅</div>
+                  <div className="completed-icon">✓</div>
                   <p><strong>Previous loan completed!</strong></p>
                   <p>The previous loan has been fully repaid. You can start a new loan or delete this conversation.</p>
                   <button className="delete-chat-btn" onClick={handleDeleteConversation}>
-                    🗑️ Delete Conversation History
+                    Delete Conversation History
                   </button>
                 </div>
               )}
@@ -750,7 +752,9 @@ const Chat = () => {
                   disabled={uploading}
                   title="Upload file"
                 >
-                  📎
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M21.44 11.05l-9.19 9.19a5.25 5.25 0 01-7.43-7.43l8.48-8.48a3.5 3.5 0 014.95 4.95l-7.78 7.78a2.25 2.25 0 11-3.18-3.18l6.36-6.36" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
                 </button>
 
                 <input
@@ -768,6 +772,12 @@ const Chat = () => {
                   </svg>
                 </button>
               </form>
+              <div className="chat-footer-notice">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+                  <path d="M6 0a6 6 0 100 12A6 6 0 006 0zm0 10.5a4.5 4.5 0 110-9 4.5 4.5 0 010 9zM6 3a.75.75 0 01.75.75v2.5a.75.75 0 01-1.5 0v-2.5A.75.75 0 016 3zm0 6.5a.75.75 0 100-1.5.75.75 0 000 1.5z"/>
+                </svg>
+                <span>Messages are end-to-end encrypted with Lit Protocol</span>
+              </div>
           </>
         ) : (
           <div className="chat-empty">
@@ -786,7 +796,7 @@ const Chat = () => {
         <div className="modal-overlay" onClick={() => setShowBorrowModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>🙏 Request to Borrow</h3>
+              <h3>Request to Borrow</h3>
               <button className="modal-close" onClick={() => setShowBorrowModal(false)}>×</button>
             </div>
             <form onSubmit={handleBorrowRequest} className="loan-form">
@@ -840,7 +850,7 @@ const Chat = () => {
               </div>
               {lendingOfferContext && (
                 <div className="offer-context-note">
-                  💡 This request is for a specific lending offer. Terms are pre-filled and cannot be changed.
+                  Note: This request is for a specific lending offer. Terms are pre-filled and cannot be changed.
                 </div>
               )}
               <div className="modal-actions">
@@ -975,20 +985,20 @@ const ConversationHeader = ({ address }) => {
 const MessageBubble = ({ message, isOwn, onViewBorrowRequest }) => {
   // System messages (loan-funded, loan-repaid)
   if (message.senderId === 'system') {
-    let icon = '🔔';
+    let icon = '';
     let className = 'system-message';
     
     if (message.type === 'loan-funded') {
-      icon = '🎉';
+      icon = '✓';
       className = 'loan-funded';
     } else if (message.type === 'loan-repaid') {
-      icon = '✅';
+      icon = '✓';
       className = 'loan-repaid';
     }
     
     return (
       <div className={`message-bubble system special-message ${className}`}>
-        <div className="special-icon">{icon}</div>
+        {icon && <div className="special-icon">{icon}</div>}
         <div className="message-text" style={{ whiteSpace: 'pre-line' }}>{message.text}</div>
         <div className="message-time">
           {formatDistanceToNow(message.timestamp, { addSuffix: true })}
@@ -1029,7 +1039,6 @@ const MessageBubble = ({ message, isOwn, onViewBorrowRequest }) => {
   if (message.type === 'lend-offer') {
     return (
       <div className={`message-bubble ${isOwn ? 'own' : 'other'} special-message lend-offer`}>
-        <div className="special-icon">💰</div>
         <div className="message-text">{message.text}</div>
         <div className="message-time">
           {formatDistanceToNow(message.timestamp, { addSuffix: true })}
@@ -1043,7 +1052,6 @@ const MessageBubble = ({ message, isOwn, onViewBorrowRequest }) => {
     if (!isOwn) {
       return (
         <div className={`message-bubble other special-message borrow-request`}>
-          <div className="special-icon">🙏</div>
           <div className="message-text">{message.text}</div>
           <button 
             className="view-request-btn"
@@ -1069,7 +1077,6 @@ const MessageBubble = ({ message, isOwn, onViewBorrowRequest }) => {
     // For own borrow requests, just show the message
     return (
       <div className={`message-bubble own special-message borrow-request`}>
-        <div className="special-icon">🙏</div>
         <div className="message-text">{message.text}</div>
         <div className="message-time">
           {formatDistanceToNow(message.timestamp, { addSuffix: true })}
