@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
+import { ref, set, push, get } from 'firebase/database';
+import { database } from '../config/firebase';
 import '../styles/Payroll.css';
 
 const Payroll = ({ contract, address }) => {
@@ -8,6 +10,100 @@ const Payroll = ({ contract, address }) => {
   ]);
   const [loading, setLoading] = useState(false);
   const [txHash, setTxHash] = useState('');
+  const [savedBatches, setSavedBatches] = useState([]);
+  const [batchName, setBatchName] = useState('');
+  const [showSavedBatches, setShowSavedBatches] = useState(false);
+
+  // Load saved batches on mount
+  const loadSavedBatches = useCallback(async () => {
+    if (!address) return;
+    
+    try {
+      const batchesRef = ref(database, `payrollBatches/${address}`);
+      const snapshot = await get(batchesRef);
+      
+      if (snapshot.exists()) {
+        const batches = [];
+        snapshot.forEach((child) => {
+          batches.push({
+            id: child.key,
+            ...child.val()
+          });
+        });
+        setSavedBatches(batches);
+      }
+    } catch (error) {
+      console.error('Error loading saved batches:', error);
+    }
+  }, [address]);
+
+  useEffect(() => {
+    if (address) {
+      loadSavedBatches();
+    }
+  }, [address, loadSavedBatches]);
+
+  // Save current batch to Firebase
+  const handleSaveBatch = async () => {
+    if (!address) {
+      alert('Please connect your wallet first');
+      return;
+    }
+
+    const validRecipients = recipients.filter(r => 
+      r.wallet && r.amount && parseFloat(r.amount) > 0
+    );
+
+    if (validRecipients.length === 0) {
+      alert('Please add at least one valid recipient before saving');
+      return;
+    }
+
+    const name = batchName.trim() || `Batch ${new Date().toLocaleDateString()}`;
+    
+    try {
+      const batchData = {
+        name,
+        recipients: validRecipients,
+        totalAmount: getTotalAmount(),
+        createdAt: Date.now(),
+        lastModified: Date.now()
+      };
+
+      const batchesRef = ref(database, `payrollBatches/${address}`);
+      const newBatchRef = push(batchesRef);
+      await set(newBatchRef, batchData);
+
+      alert(`✅ Batch "${name}" saved successfully!`);
+      setBatchName('');
+      await loadSavedBatches();
+    } catch (error) {
+      console.error('Error saving batch:', error);
+      alert('Failed to save batch: ' + error.message);
+    }
+  };
+
+  // Load a saved batch
+  const handleLoadBatch = (batch) => {
+    setRecipients(batch.recipients);
+    setShowSavedBatches(false);
+    alert(`✅ Loaded batch "${batch.name}"`);
+  };
+
+  // Delete a saved batch
+  const handleDeleteBatch = async (batchId) => {
+    if (!confirm('Are you sure you want to delete this batch?')) return;
+
+    try {
+      const batchRef = ref(database, `payrollBatches/${address}/${batchId}`);
+      await set(batchRef, null);
+      alert('✅ Batch deleted successfully!');
+      await loadSavedBatches();
+    } catch (error) {
+      console.error('Error deleting batch:', error);
+      alert('Failed to delete batch: ' + error.message);
+    }
+  };
 
   // Add recipient
   const addRecipient = () => {
@@ -82,7 +178,7 @@ const Payroll = ({ contract, address }) => {
         return;
       }
 
-      // Execute payments one by one
+      // Execute payments one by one with delays
       let successCount = 0;
       for (const recipient of validRecipients) {
         try {
@@ -98,6 +194,12 @@ const Payroll = ({ contract, address }) => {
           console.log(`✅ Paid ${recipient.amount} ETH to ${recipient.wallet}`);
           successCount++;
           setTxHash(tx.hash);
+          
+          // Wait 10 seconds between payments to avoid issues
+          if (successCount < validRecipients.length) {
+            console.log('⏳ Waiting 10 seconds before next payment...');
+            await new Promise(resolve => setTimeout(resolve, 10000));
+          }
         } catch (error) {
           console.error(`Failed to pay ${recipient.wallet}:`, error);
           alert(`Payment to ${recipient.name || recipient.wallet} failed: ${error.message}`);
@@ -187,6 +289,17 @@ const Payroll = ({ contract, address }) => {
           <div className="section-header">
             <h3>Recipients ({recipients.length})</h3>
             <div className="header-actions">
+              <button 
+                className="view-batches-btn"
+                onClick={() => setShowSavedBatches(!showSavedBatches)}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                  <polyline points="17 21 17 13 7 13 7 21" />
+                  <polyline points="7 3 7 8 15 8" />
+                </svg>
+                Saved Batches ({savedBatches.length})
+              </button>
               <label className="import-btn">
                 <input
                   type="file"
@@ -210,6 +323,35 @@ const Payroll = ({ contract, address }) => {
               </button>
             </div>
           </div>
+
+          {showSavedBatches && (
+            <div className="saved-batches-section">
+              <h4>Saved Batches</h4>
+              {savedBatches.length === 0 ? (
+                <p className="no-batches">No saved batches yet. Save your current recipients to reuse them later!</p>
+              ) : (
+                <div className="saved-batches-list">
+                  {savedBatches.map((batch) => (
+                    <div key={batch.id} className="saved-batch-card">
+                      <div className="batch-info">
+                        <h5>{batch.name}</h5>
+                        <p>{batch.recipients.length} recipients • {batch.totalAmount.toFixed(4)} ETH total</p>
+                        <small>Saved: {new Date(batch.createdAt).toLocaleDateString()}</small>
+                      </div>
+                      <div className="batch-actions">
+                        <button onClick={() => handleLoadBatch(batch)} className="load-btn">
+                          Load
+                        </button>
+                        <button onClick={() => handleDeleteBatch(batch.id)} className="delete-btn">
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="recipients-list">
             {recipients.map((recipient, index) => (
@@ -275,6 +417,28 @@ const Payroll = ({ contract, address }) => {
             <div className="summary-row total">
               <span>Total Amount:</span>
               <span className="summary-value">{getTotalAmount().toFixed(4)} ETH</span>
+            </div>
+
+            <div className="save-batch-section">
+              <input
+                type="text"
+                placeholder="Batch name (optional)"
+                value={batchName}
+                onChange={(e) => setBatchName(e.target.value)}
+                className="batch-name-input"
+              />
+              <button
+                className="save-batch-btn"
+                onClick={handleSaveBatch}
+                disabled={recipients.filter(r => r.wallet && r.amount).length === 0}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                  <polyline points="17 21 17 13 7 13 7 21" />
+                  <polyline points="7 3 7 8 15 8" />
+                </svg>
+                Save Batch
+              </button>
             </div>
             
             <button
