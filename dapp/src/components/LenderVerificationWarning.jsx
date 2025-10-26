@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import '../styles/LenderVerificationWarning.css';
 
-const LenderVerificationWarning = ({ borrower, amount, onAcknowledge, onCancel }) => {
-  const [acknowledged, setAcknowledged] = useState(false);
+const LenderVerificationWarning = ({ amount, onAcknowledge, onCancel }) => {
   
   return (
     <div className="lender-warning-overlay">
@@ -39,18 +38,6 @@ const LenderVerificationWarning = ({ borrower, amount, onAcknowledge, onCancel }
               <li>You may lose your funds if borrower does not repay</li>
             </ul>
           </div>
-          
-          <label className="acknowledgment-checkbox">
-            <input 
-              type="checkbox" 
-              checked={acknowledged}
-              onChange={(e) => setAcknowledged(e.target.checked)}
-            />
-            <span>
-              I have performed my own due diligence, verified the borrower's identity and creditworthiness,
-              and understand that I am lending at my own risk with no platform guarantees.
-            </span>
-          </label>
         </div>
         
         <div className="warning-footer">
@@ -60,7 +47,6 @@ const LenderVerificationWarning = ({ borrower, amount, onAcknowledge, onCancel }
           <button 
             className="proceed-btn" 
             onClick={onAcknowledge}
-            disabled={!acknowledged}
           >
             I Understand - Proceed to Fund
           </button>

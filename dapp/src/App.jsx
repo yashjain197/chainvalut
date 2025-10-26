@@ -134,19 +134,7 @@ const WelcomePage = () => {
     <div className="welcome-content">
       <div className="hero-section">
         <div className="hero-icon">
-          <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-            <circle cx="40" cy="40" r="38" stroke="url(#heroGradient)" strokeWidth="4" opacity="0.3"/>
-            <circle cx="40" cy="40" r="30" fill="url(#heroGradient)" opacity="0.1"/>
-            <path d="M40 20L25 30L40 37.5L55 30L40 20Z" fill="url(#heroGradient)"/>
-            <path d="M25 33L40 42L55 33L40 52L25 33Z" fill="url(#heroGradient)" opacity="0.7"/>
-            <defs>
-              <linearGradient id="heroGradient" x1="0" y1="0" x2="80" y2="80">
-                <stop offset="0%" stopColor="#1A73E8" />
-                <stop offset="50%" stopColor="#00E0FF" />
-                <stop offset="100%" stopColor="#4FC3F7" />
-              </linearGradient>
-            </defs>
-          </svg>
+          <img src="/ChainVaultLogo.png" alt="ChainVault" className="hero-logo-image" />
         </div>
         <h2>Welcome to ChainVault</h2>
         <p className="hero-description">
