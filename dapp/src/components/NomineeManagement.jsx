@@ -12,6 +12,8 @@ const NomineeManagement = ({ contract, address }) => {
   const [isInactive, setIsInactive] = useState(false);
 
   const loadNomineeData = useCallback(async () => {
+    if (!contract || !address) return;
+    
     try {
       const config = await contract.getNomineeConfig(address);
       setNomineeConfig(config);
@@ -33,6 +35,8 @@ const NomineeManagement = ({ contract, address }) => {
   }, [contract, address]);
 
   const loadActivityData = useCallback(async () => {
+    if (!contract || !address) return;
+    
     try {
       const [period, lastAct, timeLeft, inactive] = await Promise.all([
         contract.inactivityPeriod(),
@@ -211,6 +215,112 @@ const NomineeManagement = ({ contract, address }) => {
         >
           📡 Ping Activity
         </button>
+      </div>
+
+      {/* Customize Inactivity Period */}
+      <div className="inactivity-period-section">
+        <h3>⏱️ Customize Inactivity Duration</h3>
+        <p className="section-description">
+          Set how many days of inactivity before nominees can claim their shares.
+          Current period: <strong>{Math.floor(inactivityPeriod / 86400)} days</strong>
+        </p>
+        <div className="period-input-group">
+          <label htmlFor="inactivity-days">Inactivity Period (days):</label>
+          <input
+            id="inactivity-days"
+            type="number"
+            placeholder="e.g., 90"
+            min="1"
+            max="3650"
+            className="period-input"
+          />
+          <button
+            className="set-period-btn"
+            onClick={async (e) => {
+              const input = e.target.previousElementSibling;
+              const days = parseInt(input.value);
+              
+              if (!days || days < 1) {
+                alert('Please enter a valid number of days (minimum 1)');
+                return;
+              }
+
+              if (days > 3650) {
+                alert('Maximum period is 3650 days (10 years)');
+                return;
+              }
+
+              if (!window.confirm(`Set inactivity period to ${days} days?\n\nNominees will be able to claim their shares after ${days} days of inactivity.`)) {
+                return;
+              }
+
+              try {
+                setLoading(true);
+                const seconds = days * 86400; // Convert days to seconds
+                const tx = await contract.setInactivityPeriod(seconds);
+                await tx.wait();
+                alert(`Successfully set inactivity period to ${days} days!`);
+                input.value = '';
+                await loadActivityData(); // Reload to show new period
+              } catch (error) {
+                console.error('Error setting inactivity period:', error);
+                alert('Failed to set inactivity period. You may not have permission to change this setting.');
+              } finally {
+                setLoading(false);
+              }
+            }}
+            disabled={loading}
+          >
+            {loading ? 'Setting...' : 'Update Period'}
+          </button>
+        </div>
+        <div className="period-presets">
+          <button 
+            className="preset-btn" 
+            onClick={async () => {
+              const input = document.getElementById('inactivity-days');
+              input.value = '30';
+            }}
+          >
+            30 days
+          </button>
+          <button 
+            className="preset-btn" 
+            onClick={() => {
+              const input = document.getElementById('inactivity-days');
+              input.value = '90';
+            }}
+          >
+            90 days
+          </button>
+          <button 
+            className="preset-btn" 
+            onClick={() => {
+              const input = document.getElementById('inactivity-days');
+              input.value = '180';
+            }}
+          >
+            6 months
+          </button>
+          <button 
+            className="preset-btn" 
+            onClick={() => {
+              const input = document.getElementById('inactivity-days');
+              input.value = '365';
+            }}
+          >
+            1 year
+          </button>
+        </div>
+        <div className="period-help">
+          <p><strong>💡 Recommended periods:</strong></p>
+          <ul>
+            <li><strong>30 days</strong> - For frequently accessed accounts</li>
+            <li><strong>90 days</strong> - Standard business/personal use</li>
+            <li><strong>180 days</strong> - For secondary or backup accounts</li>
+            <li><strong>365 days</strong> - Long-term storage accounts</li>
+          </ul>
+        </div>
       </div>
 
       {/* Nominee Configuration */}

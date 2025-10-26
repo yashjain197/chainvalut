@@ -13,6 +13,7 @@ import Profile from './components/Profile';
 import Payment from './components/Payment';
 import UserProfile from './components/UserProfile';
 import LoanStats from './components/LoanStats';
+import ScheduledPayroll from './components/ScheduledPayroll';
 import { LoanNotification } from './components/LoanNotification';
 import { LoanFundedNotification } from './components/LoanFundedNotification';
 import './App.css';
@@ -87,6 +88,14 @@ function App() {
                 </svg>
                 <span>Profile</span>
               </NavLink>
+
+              <NavLink to="/payroll" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <rect x="3" y="4" width="14" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M3 8h14M7 2v4m6-4v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span>Payroll</span>
+              </NavLink>
             </nav>
           )}
 
@@ -115,6 +124,15 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/profile/:address" element={<UserProfile />} />
             <Route path="/payment/:borrowId?" element={<Payment />} />
+            <Route path="/payroll" element={
+              isConnected ? (
+                <ScheduledPayroll />
+              ) : (
+                <div style={{ padding: '40px', textAlign: 'center' }}>
+                  <p>Please connect your wallet to access Automated Payroll</p>
+                </div>
+              )
+            } />
           </Routes>
         </main>
 

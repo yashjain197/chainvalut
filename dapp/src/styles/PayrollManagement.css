@@ -1,0 +1,360 @@
+/* Payroll Management Styles */
+.payroll-management {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  padding: 2rem;
+  margin: 1.5rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.payroll-header {
+  margin-bottom: 2rem;
+}
+
+.payroll-header h2 {
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.payroll-description {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+}
+
+/* Add Recipient Section */
+.add-recipient-section {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.add-recipient-section h3 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: #fff;
+}
+
+.recipient-form {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1.5fr auto;
+  gap: 1rem;
+  align-items: center;
+}
+
+.form-input {
+  padding: 0.875rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #1A73E8;
+  background: rgba(26, 115, 232, 0.1);
+}
+
+.form-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.add-btn {
+  padding: 0.875rem 1.5rem;
+  background: linear-gradient(135deg, #1A73E8, #4FC3F7);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.add-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(26, 115, 232, 0.4);
+}
+
+.add-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Recipients List */
+.recipients-list {
+  margin-bottom: 2rem;
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.list-header h3 {
+  font-size: 1.25rem;
+  color: #fff;
+}
+
+.list-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(26, 115, 232, 0.1);
+  border: 1px solid rgba(26, 115, 232, 0.3);
+  border-radius: 8px;
+}
+
+.total-label {
+  color: #9AA0A6;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.total-amount {
+  color: #4FC3F7;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+}
+
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  color: #9AA0A6;
+  margin: 0.5rem 0;
+}
+
+.empty-hint {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.recipients-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.recipient-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+}
+
+.recipient-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(26, 115, 232, 0.3);
+  transform: translateY(-2px);
+}
+
+.recipient-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.recipient-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1A73E8, #4FC3F7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+}
+
+.recipient-info {
+  flex: 1;
+}
+
+.recipient-info h4 {
+  margin: 0 0 0.25rem 0;
+  color: #fff;
+  font-size: 1.1rem;
+}
+
+.recipient-address {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #9AA0A6;
+  font-family: 'Courier New', monospace;
+}
+
+.recipient-amount {
+  padding: 0.75rem;
+  background: rgba(26, 115, 232, 0.1);
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.amount-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #4FC3F7;
+}
+
+.remove-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  border-radius: 8px;
+  color: #f87171;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.remove-btn:hover:not(:disabled) {
+  background: rgba(248, 113, 113, 0.2);
+  transform: translateY(-2px);
+}
+
+.remove-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Pay All Section */
+.pay-all-section {
+  background: rgba(26, 115, 232, 0.1);
+  border: 1px solid rgba(26, 115, 232, 0.3);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.pay-all-info {
+  margin-bottom: 1rem;
+}
+
+.pay-all-info p {
+  margin: 0;
+  color: #9AA0A6;
+  font-size: 0.95rem;
+}
+
+.pay-all-btn {
+  width: 100%;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, #10b981, #059669);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.pay-all-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+}
+
+.pay-all-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Help Section */
+.payroll-help {
+  background: rgba(26, 115, 232, 0.1);
+  border: 1px solid rgba(26, 115, 232, 0.3);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.payroll-help h4 {
+  color: #4FC3F7;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.payroll-help ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.payroll-help li {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.payroll-help li::before {
+  content: "•";
+  position: absolute;
+  left: 0.5rem;
+  color: #4FC3F7;
+  font-weight: bold;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .recipient-form {
+    grid-template-columns: 1fr;
+  }
+
+  .recipients-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .payroll-management {
+    padding: 1.5rem;
+  }
+
+  .list-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .list-summary {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
