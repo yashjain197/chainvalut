@@ -65,6 +65,15 @@
           ".validate": "newData.hasChildren(['name', 'frequency', 'recipients', 'createdAt'])"
         }
       }
+    },
+    "payrollBatches": {
+      "$userAddress": {
+        ".read": true,
+        ".write": true,
+        "$batchId": {
+          ".validate": "newData.hasChildren(['name', 'recipients', 'totalAmount', 'createdAt', 'recipientCount']) || !newData.exists()"
+        }
+      }
     }
   }
 }
